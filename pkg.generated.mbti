@@ -1,0 +1,174 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Xpeng/mooncov"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn canonicalize_report(CoverageReport, strip_prefix? : String) -> CoverageReport raise CoverageError
+
+pub fn check_diff_threshold(CoverageReport, ArrayView[ChangedRange], Double) -> DiffGateResult raise CoverageError
+
+pub fn check_thresholds(CoverageReport, CoverageThresholds) -> GateResult raise CoverageError
+
+pub fn filter_report(CoverageReport, PathFilter) -> CoverageReport
+
+pub fn gate_message(GateResult) -> String
+
+pub fn glob_match(String, String) -> Bool
+
+pub fn merge_reports(ArrayView[CoverageReport], strip_prefix? : String) -> CoverageReport raise CoverageError
+
+pub fn normalize_path(String, strip_prefix? : String) -> String
+
+pub fn parse_coveralls(String, strip_prefix? : String) -> CoverageReport raise CoverageError
+
+pub fn parse_lcov(String, strip_prefix? : String) -> CoverageReport raise CoverageError
+
+pub fn parse_unified_diff(String, strip_prefix? : String) -> Array[ChangedRange] raise CoverageError
+
+pub fn select_paths(CoverageReport, Array[String], Array[String]) -> CoverageReport
+
+pub fn summarize(CoverageReport) -> CoverageSummary raise CoverageError
+
+pub fn summarize_diff(CoverageReport, ArrayView[ChangedRange]) -> DiffSummary raise CoverageError
+
+pub fn summarize_file(FileCoverage) -> CoverageSummary raise CoverageError
+
+pub fn summarize_files(CoverageReport) -> Array[FileSummary] raise CoverageError
+
+pub fn to_coveralls_json(CoverageReport, service_name? : String, service_job_id? : String) -> String raise CoverageError
+
+pub fn to_json_report(CoverageReport, indent? : Int) -> String raise CoverageError
+
+pub fn to_lcov(CoverageReport) -> String raise CoverageError
+
+pub fn to_markdown(CoverageReport, title? : String, include_files? : Bool) -> String raise CoverageError
+
+// Errors
+pub(all) suberror CoverageError {
+  InvalidLineNumber(Int)
+  InvalidHitCount(Int)
+  InvalidLcov(Int, String)
+  InvalidCoveralls(String)
+  InvalidModel(String)
+  InvalidThreshold(String, Double)
+  InvalidDiff(Int, String)
+} derive(Eq, @debug.Debug)
+
+// Types and methods
+pub(all) struct ChangedRange {
+  path : String
+  start_line : Int
+  end_line : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CoverageBranch {
+  line : Int
+  block : String
+  branch : String
+  taken : Int?
+} derive(Eq, @debug.Debug)
+pub fn CoverageBranch::is_covered(Self) -> Bool
+
+pub(all) struct CoverageCount {
+  covered : Int
+  total : Int
+} derive(Eq, @debug.Debug)
+pub fn CoverageCount::percentage(Self) -> Double
+
+pub(all) struct CoverageFunction {
+  name : String
+  line : Int?
+  hits : Int
+} derive(Eq, @debug.Debug)
+pub fn CoverageFunction::is_covered(Self) -> Bool
+
+pub(all) struct CoverageLine {
+  line : Int
+  hits : Int
+} derive(Eq, @debug.Debug)
+pub fn CoverageLine::is_covered(Self) -> Bool
+
+pub(all) enum CoverageMetric {
+  Lines
+  Branches
+  Functions
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CoverageReport {
+  files : Array[FileCoverage]
+} derive(Eq, @debug.Debug)
+pub fn CoverageReport::add_file(Self, FileCoverage) -> Unit
+pub fn CoverageReport::find_file(Self, StringView) -> FileCoverage?
+pub fn CoverageReport::new() -> Self
+
+pub(all) struct CoverageSummary {
+  lines : CoverageCount
+  branches : CoverageCount
+  functions : CoverageCount
+} derive(Eq, @debug.Debug)
+
+pub(all) struct CoverageThresholds {
+  lines : Double?
+  branches : Double?
+  functions : Double?
+} derive(@debug.Debug)
+pub fn CoverageThresholds::new(lines? : Double, branches? : Double, functions? : Double) -> Self
+
+pub(all) struct DiffGateResult {
+  passed : Bool
+  summary : DiffSummary
+  actual : Double
+  required : Double
+} derive(@debug.Debug)
+
+pub(all) struct DiffSummary {
+  lines : CoverageCount
+  changed_ranges : Int
+  matched_files : Int
+  unmatched_files : Array[String]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct FileCoverage {
+  path : String
+  test_name : String?
+  lines : Array[CoverageLine]
+  branches : Array[CoverageBranch]
+  functions : Array[CoverageFunction]
+} derive(Eq, @debug.Debug)
+pub fn FileCoverage::add_branch(Self, Int, String, String, Int?) -> Unit raise CoverageError
+pub fn FileCoverage::add_function(Self, String, Int, line? : Int) -> Unit raise CoverageError
+pub fn FileCoverage::add_line(Self, Int, Int) -> Unit raise CoverageError
+pub fn FileCoverage::new(String, test_name? : String) -> Self
+
+pub(all) struct FileSummary {
+  path : String
+  summary : CoverageSummary
+} derive(Eq, @debug.Debug)
+
+pub(all) struct GateResult {
+  passed : Bool
+  summary : CoverageSummary
+  violations : Array[ThresholdViolation]
+} derive(@debug.Debug)
+
+pub(all) struct PathFilter {
+  includes : Array[String]
+  excludes : Array[String]
+} derive(Eq, @debug.Debug)
+pub fn PathFilter::all() -> Self
+pub fn PathFilter::allows(Self, String) -> Bool
+pub fn PathFilter::new(Array[String], Array[String]) -> Self
+
+pub(all) struct ThresholdViolation {
+  metric : CoverageMetric
+  actual : Double
+  required : Double
+} derive(@debug.Debug)
+
+// Type aliases
+
+// Traits
+
