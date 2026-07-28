@@ -4,6 +4,218 @@ fn coveralls_error(path : String, message : String) -> CoverageError {
 }
 
 ///|
+fn is_json_space(char : Char) -> Bool {
+  char == ' ' || char == '\t' || char == '\r' || char == '\n'
+}
+
+///|
+fn is_json_hex_digit(char : Char) -> Bool {
+  char.is_ascii_digit() ||
+  (char >= 'a' && char <= 'f') ||
+  (char >= 'A' && char <= 'F')
+}
+
+///|
+fn json_value_start_after_key(
+  chars : Array[Char],
+  index : Int,
+  key : String,
+) -> Int? {
+  let marker = "\"\{key}\""
+  if !chars_have_prefix(chars, index, marker) {
+    return None
+  }
+  let mut cursor = index + marker.to_array().length()
+  while cursor < chars.length() && is_json_space(chars[cursor]) {
+    cursor = cursor + 1
+  }
+  if cursor >= chars.length() || chars[cursor] != ':' {
+    return None
+  }
+  cursor = cursor + 1
+  while cursor < chars.length() && is_json_space(chars[cursor]) {
+    cursor = cursor + 1
+  }
+  Some(cursor)
+}
+
+///|
+fn is_json_unicode_escape(chars : Array[Char], index : Int) -> Bool {
+  if index + 5 >= chars.length() ||
+    chars[index] != '\\' ||
+    chars[index + 1] != 'u' {
+    return false
+  }
+  for offset in 2..<6 {
+    if !is_json_hex_digit(chars[index + offset]) {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn is_json_simple_escape(char : Char) -> Bool {
+  char == '"' ||
+  char == '\\' ||
+  char == '/' ||
+  char == 'b' ||
+  char == 'f' ||
+  char == 'n' ||
+  char == 'r' ||
+  char == 't'
+}
+
+///|
+fn copy_json_string(
+  chars : Array[Char],
+  start : Int,
+  output : StringBuilder,
+) -> Int {
+  output.write_char('"')
+  let mut index = start + 1
+  while index < chars.length() {
+    output.write_char(chars[index])
+    if chars[index] == '"' {
+      return index + 1
+    }
+    if chars[index] == '\\' && index + 1 < chars.length() {
+      output.write_char(chars[index + 1])
+      index = index + 2
+    } else {
+      index = index + 1
+    }
+  }
+  index
+}
+
+///|
+fn copy_repaired_path_string(
+  chars : Array[Char],
+  opening_quote : Int,
+  output : StringBuilder,
+) -> Int {
+  output.write_char('"')
+  let mut index = opening_quote + 1
+  while index < chars.length() {
+    let char = chars[index]
+    if char == '"' {
+      output.write_char(char)
+      return index + 1
+    }
+    if char != '\\' {
+      output.write_char(char)
+      index = index + 1
+      continue
+    }
+    if index + 1 < chars.length() && is_json_simple_escape(chars[index + 1]) {
+      output.write_char(chars[index])
+      output.write_char(chars[index + 1])
+      index = index + 2
+    } else if is_json_unicode_escape(chars, index) {
+      for offset in 0..<6 {
+        output.write_char(chars[index + offset])
+      }
+      index = index + 6
+    } else {
+      // MoonBit 0.1.20260703 on Windows writes source-file separators as
+      // bare backslashes. Only an otherwise-invalid JSON escape is doubled.
+      output.write_char('\\')
+      output.write_char('\\')
+      index = index + 1
+    }
+  }
+  index
+}
+
+///|
+fn copy_repaired_source_files_array(
+  chars : Array[Char],
+  start : Int,
+  output : StringBuilder,
+) -> Int {
+  let mut index = start
+  let mut array_depth = 0
+  let mut object_depth = 0
+  while index < chars.length() {
+    let char = chars[index]
+    if char == '"' {
+      if array_depth == 1 && object_depth == 1 {
+        match json_value_start_after_key(chars, index, "name") {
+          Some(value_start) =>
+            if value_start < chars.length() && chars[value_start] == '"' {
+              for copy_index in index..<value_start {
+                output.write_char(chars[copy_index])
+              }
+              index = copy_repaired_path_string(chars, value_start, output)
+              continue
+            }
+          None => ()
+        }
+      }
+      index = copy_json_string(chars, index, output)
+      continue
+    }
+    output.write_char(char)
+    match char {
+      '[' => array_depth = array_depth + 1
+      ']' => {
+        array_depth = array_depth - 1
+        if array_depth == 0 {
+          return index + 1
+        }
+      }
+      '{' => object_depth = object_depth + 1
+      '}' => object_depth = object_depth - 1
+      _ => ()
+    }
+    index = index + 1
+  }
+  index
+}
+
+///|
+fn repair_moon_windows_coveralls_names(input : String) -> String {
+  let chars = input.to_array()
+  let output = StringBuilder(size_hint=input.length())
+  let mut index = 0
+  let mut object_depth = 0
+  let mut array_depth = 0
+  while index < chars.length() {
+    if chars[index] == '"' {
+      if object_depth == 1 && array_depth == 0 {
+        match json_value_start_after_key(chars, index, "source_files") {
+          Some(value_start) =>
+            if value_start < chars.length() && chars[value_start] == '[' {
+              for copy_index in index..<value_start {
+                output.write_char(chars[copy_index])
+              }
+              index = copy_repaired_source_files_array(
+                chars, value_start, output,
+              )
+              continue
+            }
+          None => ()
+        }
+      }
+      index = copy_json_string(chars, index, output)
+    } else {
+      let char = chars[index]
+      output.write_char(char)
+      match char {
+        '{' => object_depth = object_depth + 1
+        '}' => object_depth = object_depth - 1
+        '[' => array_depth = array_depth + 1
+        ']' => array_depth = array_depth - 1
+        _ => ()
+      }
+      index = index + 1
+    }
+  }
+  output.to_string()
+}
+
+///|
 fn coveralls_object(
   value : Json,
   path : String,
@@ -172,19 +384,35 @@ fn parse_coveralls_file(
 }
 
 ///|
-/// Parse Coveralls/CodeCov JSON produced by `moon coverage report -f
-/// coveralls`.
+fn parse_coveralls_json(input : String) -> Json raise CoverageError {
+  try @json.parse(input) catch {
+    original_error => {
+      let repaired = repair_moon_windows_coveralls_names(input)
+      if repaired == input {
+        raise InvalidCoveralls("invalid JSON: \{original_error}")
+      }
+      @json.parse(repaired) catch {
+        _ => raise InvalidCoveralls("invalid JSON: \{original_error}")
+      }
+    }
+  } noraise {
+    root => root
+  }
+}
+
+///|
+/// Parse Coveralls JSON produced by `moon coverage report -f coveralls`.
 ///
 /// The standard `source_files[].coverage` array and flattened `branches`
 /// array are supported. `null` coverage slots are preserved as
-/// non-instrumented lines rather than counted as misses.
+/// non-instrumented lines rather than counted as misses. If strict decoding
+/// fails, invalid bare Windows separators emitted by MoonBit 0.1.20260703 are
+/// repaired only in `source_files[].name` before one strict retry.
 pub fn parse_coveralls(
   input : String,
   strip_prefix? : String = "",
 ) -> CoverageReport raise CoverageError {
-  let root = @json.parse(input) catch {
-    error => raise InvalidCoveralls("invalid JSON: \{error}")
-  }
+  let root = parse_coveralls_json(input)
   let object = coveralls_object(root, "$")
   let source_files = coveralls_array(
     required_coveralls_field(object, "source_files", "$"),

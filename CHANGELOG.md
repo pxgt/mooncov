@@ -9,7 +9,7 @@ All notable changes to `mooncov` are documented here. The project follows
 
 - Format-neutral line, branch, and function coverage model.
 - LCOV parser with physical-line diagnostics and deterministic writer.
-- Coveralls/CodeCov JSON parser and writer for line and branch coverage.
+- Coveralls `source_files` JSON parser and writer for line and branch coverage.
 - Cobertura XML parser and writer for line, branch-condition, and method data.
 - Path normalization plus portable `*`, `?`, and `**` filtering.
 - Duplicate-safe multi-report merge and canonicalization.
@@ -20,3 +20,9 @@ All notable changes to `mooncov` are documented here. The project follows
 - Markdown and full-fidelity JSON reports.
 - Native file-oriented command-line example.
 - Cross-backend tests and GitHub Actions verification.
+
+### Fixed
+
+- Accept bare Windows separators emitted by MoonBit 0.1.20260703 in Coveralls
+  source-file names through a strict-first, invalid-escape-only fallback.
+- Show structured error payloads in the native CLI.

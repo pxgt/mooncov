@@ -162,12 +162,30 @@ fn run_command(args : Array[String]) -> Unit raise {
 }
 
 ///|
+fn exit_with_error(message : String) -> Unit {
+  println("mooncov: \{message}")
+  @sys.exit(1)
+}
+
+///|
 fn main {
   try run_command(@sys.get_cli_args()) catch {
-    error => {
-      println("mooncov: \{error}")
-      @sys.exit(1)
-    }
+    @mooncov.InvalidLineNumber(line) =>
+      exit_with_error("invalid line number: \{line}")
+    @mooncov.InvalidHitCount(hits) =>
+      exit_with_error("invalid hit count: \{hits}")
+    @mooncov.InvalidLcov(line, message) =>
+      exit_with_error("LCOV line \{line}: \{message}")
+    @mooncov.InvalidCoveralls(message) =>
+      exit_with_error("Coveralls: \{message}")
+    @mooncov.InvalidCobertura(line, message) =>
+      exit_with_error("Cobertura line \{line}: \{message}")
+    @mooncov.InvalidModel(message) => exit_with_error(message)
+    @mooncov.InvalidThreshold(metric, value) =>
+      exit_with_error("invalid \{metric} threshold: \{value}")
+    @mooncov.InvalidDiff(line, message) =>
+      exit_with_error("diff line \{line}: \{message}")
+    error => exit_with_error("\{Repr(error)}")
   } noraise {
     _ => ()
   }

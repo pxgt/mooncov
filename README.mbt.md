@@ -36,7 +36,7 @@ Typical uses include:
 | Capability | Status |
 |:--|:--|
 | LCOV parse and deterministic write | Supported |
-| Coveralls/CodeCov JSON parse and write | Supported |
+| Coveralls `source_files` JSON parse and write | Supported |
 | Line, branch, and function model | Supported |
 | Duplicate-safe multi-report merge | Supported |
 | Path normalization and `*` / `?` / `**` filters | Supported |
@@ -49,10 +49,10 @@ Typical uses include:
 
 ## Installation
 
-After the package is published to [mooncakes.io](https://mooncakes.io/):
+Install the package from [mooncakes.io](https://mooncakes.io/):
 
 ```text
-moon add Xpeng/mooncov@0.1.0
+moon add Xpeng/mooncov
 ```
 
 Then import the root package in `moon.pkg`:
@@ -249,6 +249,13 @@ Coveralls has no standard function-coverage field. Therefore
 `to_coveralls_json` intentionally serializes lines and branches only. Use
 `to_json_report` when a full-fidelity mooncov artifact is required.
 
+MoonBit `0.1.20260703` on Windows can emit bare `\` path separators inside
+`source_files[].name`, which is not valid JSON. `parse_coveralls` recognizes
+that producer-specific form only after standard JSON decoding fails, doubles
+otherwise-invalid escapes in `source_files[].name`, and retries strict decoding
+once. Valid escapes, including `\\`, `\t`, `\uXXXX`, quotes, and slashes, keep
+their standard JSON meaning.
+
 ## Cobertura XML
 
 MoonBit's `moon coverage report -f cobertura` output can be consumed directly:
@@ -384,6 +391,8 @@ and package gates.
 - LCOV function names may contain commas because only the first comma separates
   their numeric field.
 - Coveralls numeric coverage values must be finite, integral, and non-negative.
+- Current MoonBit Windows Coveralls output with bare path separators is accepted
+  through a strict-first, invalid-escape-only `source_files[].name` repair.
 - Cobertura XML supports class lines, method lines, standard XML attribute
   entities, and `condition-coverage`; DTD validation is intentionally out of
   scope.
@@ -414,6 +423,15 @@ coverage library. Repository fixtures are small original examples written for
 this project. The only runtime dependency is
 [`moonbitlang/x`](https://mooncakes.io/docs/moonbitlang/x/) for native CLI file
 and process access; the library code uses `moonbitlang/core`.
+
+As part of the ecosystem survey, this project also reviewed
+[`PingGuoMiaoMiao/mooncove`](https://mooncakes.io/docs/PingGuoMiaoMiao/mooncove/).
+That package focuses on MoonBit bisect data and HTML/CSV reports. `mooncov`
+instead focuses on LCOV text parsing and serialization, multi-report merging,
+path filtering, coverage statistics, multi-format reports, and a CI-oriented
+CLI. This comparison only describes the different scopes; `mooncov` does not
+copy `mooncove` implementation code or claim to be the first MoonBit coverage
+tool.
 
 ## Contributing
 

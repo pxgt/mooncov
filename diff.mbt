@@ -173,7 +173,7 @@ pub fn summarize_diff(
     }
   }
   let canonical = canonicalize_report(report)
-  let report_paths : Map[String, Unit] = {}
+  let report_paths : Map[String, Unit] = Map([])
   let mut covered = 0
   let mut total = 0
   let mut matched_files = 0
@@ -191,7 +191,7 @@ pub fn summarize_diff(
       }
     }
   }
-  let unmatched_set : Map[String, Unit] = {}
+  let unmatched_set : Map[String, Unit] = Map([])
   for range in ranges {
     if !report_paths.contains(range.path) {
       unmatched_set[range.path] = ()

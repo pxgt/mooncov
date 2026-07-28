@@ -14,7 +14,7 @@ fn coveralls_branch_identifier_json(value : String) -> Json {
 
 ///|
 fn coveralls_line_array(file : FileCoverage) -> Array[Json] raise CoverageError {
-  let counts : Map[Int, Int] = {}
+  let counts : Map[Int, Int] = Map([])
   let mut max_line = 0
   for item in file.lines {
     if item.line <= 0 {

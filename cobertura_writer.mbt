@@ -14,7 +14,7 @@ fn cobertura_method_rate(function : CoverageFunction) -> String {
 
 ///|
 fn branches_by_line(file : FileCoverage) -> Map[Int, Array[CoverageBranch]] {
-  let grouped : Map[Int, Array[CoverageBranch]] = {}
+  let grouped : Map[Int, Array[CoverageBranch]] = Map([])
   for branch in file.branches {
     grouped.get_or_init(branch.line, () => []).push(branch)
   }
@@ -23,7 +23,7 @@ fn branches_by_line(file : FileCoverage) -> Map[Int, Array[CoverageBranch]] {
 
 ///|
 fn line_hits_map(file : FileCoverage) -> Map[Int, Int] {
-  let hits : Map[Int, Int] = {}
+  let hits : Map[Int, Int] = Map([])
   for line in file.lines {
     hits[line.line] = line.hits
   }

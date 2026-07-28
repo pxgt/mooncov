@@ -31,6 +31,54 @@ test "parse empty Coveralls source list" {
 }
 
 ///|
+test "parse current MoonBit Windows Coveralls paths with bare separators" {
+  let input =
+    #|{"source_files":[
+    #|  {"name":"cmd\main\main.mbt","coverage":[1]},
+    #|  {"name":"dir\tfile.mbt","coverage":[0]}
+    #|]}
+  let report = @mooncov.parse_coveralls(input)
+  inspect(report.files[0].path, content="cmd/main/main.mbt")
+  inspect(report.files[1].path, content="dir\tfile.mbt")
+}
+
+///|
+test "Coveralls path repair preserves standards-compliant JSON escapes" {
+  let input = "{\"source_files\":[" +
+    "{\"name\":\"src/\\u4e2d.mbt\",\"coverage\":[]}," +
+    "{\"name\":\"src\\/quoted\\\"name.mbt\",\"coverage\":[]}," +
+    "{\"name\":\"cmd\\u005cmain.mbt\",\"coverage\":[]}" +
+    "]}"
+  let report = @mooncov.parse_coveralls(input)
+  inspect(report.files[0].path, content="src/中.mbt")
+  inspect(report.files[1].path, content="src/quoted\"name.mbt")
+  inspect(report.files[2].path, content="cmd/main.mbt")
+}
+
+///|
+test "Coveralls path repair does not widen unrelated JSON parsing" {
+  let input =
+    #|{"service_name":"bad\q","source_files":[]}
+  try @mooncov.parse_coveralls(input) catch {
+    InvalidCoveralls(message) =>
+      inspect(message.has_prefix("invalid JSON:"), content="true")
+    _ => fail("unexpected error")
+  } noraise {
+    _ => fail("expected invalid JSON error")
+  }
+  let nested =
+    #|{"source_files":[{"name":"ok.mbt","coverage":[1]}],
+    #| "metadata":{"source_files":[{"name":"bad\q","coverage":[]}]}}
+  try @mooncov.parse_coveralls(nested) catch {
+    InvalidCoveralls(message) =>
+      inspect(message.has_prefix("invalid JSON:"), content="true")
+    _ => fail("unexpected error")
+  } noraise {
+    _ => fail("nested source_files must not enter compatibility repair")
+  }
+}
+
+///|
 test "Coveralls parser rejects fractional hit counts with a JSON path" {
   let input = "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[1.5]}]}"
   try @mooncov.parse_coveralls(input) catch {

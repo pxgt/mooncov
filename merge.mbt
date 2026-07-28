@@ -124,7 +124,7 @@ pub fn merge_reports(
   reports : ArrayView[CoverageReport],
   strip_prefix? : String = "",
 ) -> CoverageReport raise CoverageError {
-  let accumulators : Map[String, FileAccumulator] = {}
+  let accumulators : Map[String, FileAccumulator] = Map([])
   for report in reports {
     for file in report.files {
       let path = normalize_path(file.path, strip_prefix~)

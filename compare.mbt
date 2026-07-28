@@ -78,7 +78,7 @@ fn metric_change(before : CoverageCount, after : CoverageCount) -> MetricChange 
 fn file_summary_map(
   report : CoverageReport,
 ) -> Map[String, CoverageSummary] raise CoverageError {
-  let summaries : Map[String, CoverageSummary] = {}
+  let summaries : Map[String, CoverageSummary] = Map([])
   for file in summarize_files(report) {
     summaries[file.path] = file.summary
   }
@@ -113,7 +113,7 @@ pub fn compare_reports(
   let current = summarize(current_report)
   let before_files = file_summary_map(baseline_report)
   let after_files = file_summary_map(current_report)
-  let path_set : Map[String, Unit] = {}
+  let path_set : Map[String, Unit] = Map([])
   for path, _ in before_files {
     path_set[path] = ()
   }

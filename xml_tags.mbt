@@ -182,7 +182,7 @@ fn parse_xml_tag(
     raise InvalidCobertura(input_line, "XML tag name must not be empty")
   }
   let name = chars_to_string(chars, name_start, index)
-  let attributes : Map[String, String] = {}
+  let attributes : Map[String, String] = Map([])
   let mut self_closing = false
   while index < chars.length() {
     while index < chars.length() && is_xml_space(chars[index]) {

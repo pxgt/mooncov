@@ -61,6 +61,14 @@ Line `null` means uninstrumented. Branch `null` means instrumented but with an
 unknown taken count. Counts must be finite, integral, and non-negative. Branch
 block and branch identifiers may be integers or strings.
 
+MoonBit `0.1.20260703` on Windows may write raw backslash separators in a
+source-file `name`, producing invalid JSON (for example,
+`"cmd\main\main.mbt"`). Mooncov first attempts standard JSON decoding. Only
+after that fails does it double otherwise-invalid escapes inside top-level
+`source_files[]` element `name` values and retry strict decoding once. Valid
+`\\`, `\"`, `\/`, `\b`, `\f`, `\n`, `\r`, `\t`, and `\uXXXX` escapes are
+preserved. This compatibility step does not make unrelated fields lenient.
+
 The encoder emits service metadata, source names, sparse coverage arrays, and
 branches. Function coverage is not encoded because the interoperable schema has
 no standard field for it.
