@@ -24,8 +24,17 @@ When all inputs share a format:
 moon run cmd/main -- merge lcov unit.info integration.info > combined.info
 ```
 
-For mixed formats, call `parse_lcov` and `parse_coveralls` in a small MoonBit
-program, then pass both reports to `merge_reports`.
+For mixed formats, call `parse_lcov`, `parse_coveralls`, or
+`parse_cobertura` in a small MoonBit program, then pass the reports to
+`merge_reports`.
+
+## Normalize Cobertura XML
+
+```text
+moon coverage report -f cobertura -o coverage.xml
+moon run cmd/main -- summary cobertura coverage.xml
+moon run cmd/main -- normalize cobertura coverage.xml > lcov.info
+```
 
 ## Enforce line coverage in CI
 

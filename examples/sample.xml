@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<coverage lines-valid="4" lines-covered="3" line-rate="0.75"
+  branches-valid="2" branches-covered="1" branch-rate="0.5">
+  <sources>
+    <source>.</source>
+  </sources>
+  <packages>
+    <package name=".">
+      <classes>
+        <class name="calculator" filename="src/calculator.mbt">
+          <methods>
+            <method name="add" signature="">
+              <lines>
+                <line number="1" hits="4"/>
+              </lines>
+            </method>
+          </methods>
+          <lines>
+            <line number="1" hits="4"/>
+            <line number="2" hits="4"/>
+            <line number="5" hits="1"/>
+            <line number="6" hits="0" branch="true"
+              condition-coverage="50% (1/2)"/>
+          </lines>
+        </class>
+      </classes>
+    </package>
+  </packages>
+</coverage>

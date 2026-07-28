@@ -5,12 +5,12 @@ fn usage() -> String {
     #|
     #|Usage:
     #|  moon run cmd/main
-    #|  moon run cmd/main -- summary <lcov|coveralls> <file>
-    #|  moon run cmd/main -- validate <lcov|coveralls> <file>
-    #|  moon run cmd/main -- normalize <lcov|coveralls> <file>
-    #|  moon run cmd/main -- json <lcov|coveralls> <file>
-    #|  moon run cmd/main -- gate <lcov|coveralls> <file> <minimum-lines>
-    #|  moon run cmd/main -- merge <lcov|coveralls> <file> <file> [...]
+    #|  moon run cmd/main -- summary <lcov|coveralls|cobertura> <file>
+    #|  moon run cmd/main -- validate <lcov|coveralls|cobertura> <file>
+    #|  moon run cmd/main -- normalize <lcov|coveralls|cobertura> <file>
+    #|  moon run cmd/main -- json <lcov|coveralls|cobertura> <file>
+    #|  moon run cmd/main -- gate <lcov|coveralls|cobertura> <file> <minimum-lines>
+    #|  moon run cmd/main -- merge <lcov|coveralls|cobertura> <file> <file> [...]
     #|
     #|With no arguments, mooncov prints a built-in reproducible demonstration.
     #|
@@ -23,7 +23,11 @@ fn read_report(format : String, path : String) -> @mooncov.CoverageReport raise 
   match format {
     "lcov" => @mooncov.parse_lcov(input)
     "coveralls" => @mooncov.parse_coveralls(input)
-    _ => raise @mooncov.InvalidModel("input format must be lcov or coveralls")
+    "cobertura" => @mooncov.parse_cobertura(input)
+    _ =>
+      raise @mooncov.InvalidModel(
+        "input format must be lcov, coveralls, or cobertura",
+      )
   }
 }
 

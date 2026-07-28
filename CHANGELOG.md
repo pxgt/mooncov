@@ -10,6 +10,7 @@ All notable changes to `mooncov` are documented here. The project follows
 - Format-neutral line, branch, and function coverage model.
 - LCOV parser with physical-line diagnostics and deterministic writer.
 - Coveralls/CodeCov JSON parser and writer for line and branch coverage.
+- Cobertura XML parser and writer for line, branch-condition, and method data.
 - Path normalization plus portable `*`, `?`, and `**` filtering.
 - Duplicate-safe multi-report merge and canonicalization.
 - Overall and per-file coverage summaries.

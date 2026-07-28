@@ -65,6 +65,25 @@ The encoder emits service metadata, source names, sparse coverage arrays, and
 branches. Function coverage is not encoded because the interoperable schema has
 no standard field for it.
 
+## Cobertura XML
+
+The decoder reads class `filename` attributes, class-level line `number` and
+`hits`, optional method names and method lines, and standard
+`condition-coverage="P% (covered/total)"` attributes. XML declarations,
+comments, CDATA, and declarations are skipped; quoted attributes support named
+and numeric XML entities.
+
+Cobertura does not carry LCOV block and branch identifiers. A condition total
+is represented with synthetic block `cobertura` and zero-based branch strings;
+the covered synthetic entries precede uncovered entries. This preserves
+aggregate branch statistics without claiming identity information the source
+format lacks.
+
+The encoder emits deterministic Cobertura XML with root, package, class,
+method, line, and condition elements. It canonicalizes first. Function entries
+without a known source line are omitted because a valid method line cannot be
+invented.
+
 ## Merge
 
 Paths are normalized before matching. Counts for identical entries are added.

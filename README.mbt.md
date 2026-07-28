@@ -4,10 +4,11 @@
 [![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 
 `mooncov` is a pure MoonBit coverage-report toolkit for libraries, command-line
-tools, and CI pipelines. It parses LCOV and Coveralls JSON into one typed data
-model, merges reports from parallel jobs, normalizes and filters source paths,
-checks project or changed-line thresholds, and exports deterministic LCOV,
-Coveralls JSON, Markdown, or full-fidelity JSON.
+tools, and CI pipelines. It parses LCOV, Coveralls JSON, and Cobertura XML into
+one typed data model, merges reports from parallel jobs, normalizes and filters
+source paths, checks project or changed-line thresholds, and exports
+deterministic LCOV, Coveralls JSON, Cobertura XML, Markdown, or full-fidelity
+JSON.
 
 The reusable library supports MoonBit's `wasm`, `wasm-gc`, `js`, and `native`
 backends. The optional file-oriented CLI is native-only because it reads local
@@ -43,7 +44,7 @@ Typical uses include:
 | Line, branch, and function threshold gate | Supported |
 | Unified-diff changed-line coverage | Supported |
 | Markdown and full-fidelity JSON output | Supported |
-| Cobertura XML | Not implemented in 0.1.0 |
+| Cobertura XML parse and write | Supported |
 
 ## Installation
 
@@ -218,6 +219,35 @@ Coveralls has no standard function-coverage field. Therefore
 `to_coveralls_json` intentionally serializes lines and branches only. Use
 `to_json_report` when a full-fidelity mooncov artifact is required.
 
+## Cobertura XML
+
+MoonBit's `moon coverage report -f cobertura` output can be consumed directly:
+
+```mbt check
+///|
+test "README: Cobertura interoperability" {
+  let xml =
+    #|<coverage><packages><package><classes>
+    #|  <class filename="src/a.mbt">
+    #|    <lines>
+    #|      <line number="1" hits="2"/>
+    #|      <line number="2" hits="0" branch="true"
+    #|        condition-coverage="50% (1/2)"/>
+    #|    </lines>
+    #|  </class>
+    #|</classes></package></packages></coverage>
+  let report = @mooncov.parse_cobertura(xml)
+  inspect(@mooncov.summarize(report).branches.total, content="2")
+  let encoded = @mooncov.to_cobertura(report)
+  assert_true(encoded.contains("branches-valid=\"2\""))
+}
+```
+
+Cobertura stores aggregate condition coverage, not LCOV's block and branch
+identities. The parser therefore creates stable synthetic branch identities;
+line and branch totals survive a mooncov encode/decode round trip, while the
+original branch IDs cannot.
+
 ## Output APIs
 
 ```mbt nocheck
@@ -232,6 +262,9 @@ let coveralls : String = @mooncov.to_coveralls_json(
 )
 
 ///|
+let cobertura : String = @mooncov.to_cobertura(report)
+
+///|
 let markdown : String = @mooncov.to_markdown(report)
 
 ///|
@@ -240,8 +273,8 @@ let json : String = @mooncov.to_json_report(report)
 
 All serializers canonicalize first: normalized files and their entries are
 deduplicated and sorted before output. Reordering equivalent input records
-therefore does not change LCOV, Coveralls JSON, Markdown, or unified JSON
-artifacts.
+therefore does not change LCOV, Coveralls JSON, Cobertura XML, Markdown, or
+unified JSON artifacts.
 
 ## Command-line example
 
@@ -254,8 +287,9 @@ moon run cmd/main
 # Reproduce the repository sample
 moon run cmd/main -- summary lcov examples/sample.info
 moon run cmd/main -- validate lcov examples/sample.info
+moon run cmd/main -- summary cobertura examples/sample.xml
 
-# Convert either accepted format to canonical LCOV or full JSON
+# Convert any accepted format to canonical LCOV or full JSON
 moon run cmd/main -- normalize coveralls path/to/coverage.json
 moon run cmd/main -- json lcov path/to/lcov.info
 
@@ -275,7 +309,7 @@ checks and tests it on every stable backend.
 - Model: `CoverageReport`, `FileCoverage`, `CoverageLine`,
   `CoverageBranch`, `CoverageFunction`;
 - Formats: `parse_lcov`, `to_lcov`, `parse_coveralls`,
-  `to_coveralls_json`;
+  `to_coveralls_json`, `parse_cobertura`, `to_cobertura`;
 - Composition: `merge_reports`, `canonicalize_report`;
 - Paths: `normalize_path`, `glob_match`, `PathFilter`, `filter_report`,
   `select_paths`;
@@ -299,6 +333,7 @@ moon test --target all --deny-warn
 moon build --target all
 moon run cmd/main
 moon run cmd/main -- summary lcov examples/sample.info
+moon run cmd/main -- summary cobertura examples/sample.xml
 moon package
 git diff --exit-code
 ```
@@ -308,12 +343,14 @@ and package gates.
 
 ## Scope and compatibility notes
 
-- The 0.1.0 release does not parse or emit Cobertura XML.
 - LCOV extension tags other than `VER` are rejected rather than silently
   discarded; standard aggregate tags are accepted.
 - LCOV function names may contain commas because only the first comma separates
   their numeric field.
 - Coveralls numeric coverage values must be finite, integral, and non-negative.
+- Cobertura XML supports class lines, method lines, standard XML attribute
+  entities, and `condition-coverage`; DTD validation is intentionally out of
+  scope.
 - Path matching preserves case; callers targeting case-insensitive filesystems
   may normalize case before constructing reports.
 - Unified-diff parsing handles standard Git destination headers, optional tab
@@ -333,6 +370,7 @@ documentation as behavioral references:
 
 - [LCOV tracefile format](https://github.com/linux-test-project/lcov);
 - [Coveralls JSON format](https://docs.coveralls.io/api-introduction);
+- [Cobertura XML project](https://github.com/cobertura/cobertura);
 - [MoonBit coverage tooling](https://docs.moonbitlang.com/en/stable/toolchain/moon/coverage.html).
 
 No implementation source was copied from LCOV, Coveralls, Codecov, or another
