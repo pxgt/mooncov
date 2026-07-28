@@ -5,6 +5,7 @@ pub(all) suberror CoverageError {
   InvalidHitCount(Int)
   InvalidLcov(Int, String)
   InvalidCoveralls(String)
+  InvalidModel(String)
   InvalidThreshold(String, Double)
   InvalidDiff(Int, String)
 } derive(Debug, Eq)
