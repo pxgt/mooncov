@@ -58,6 +58,17 @@ let result = @mooncov.check_thresholds(
 )
 ```
 
+## Limit regressions against a baseline
+
+```text
+moon run cmd/main -- compare lcov baseline.info current.info
+moon run cmd/main -- regress lcov baseline.info current.info 2
+```
+
+The second command permits a line-coverage drop of at most two percentage
+points and exits with code 2 for a larger drop. The library API supports
+separate allowances for lines, branches, and functions.
+
 ## Exclude generated files
 
 ```mbt nocheck

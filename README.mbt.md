@@ -42,6 +42,7 @@ Typical uses include:
 | Path normalization and `*` / `?` / `**` filters | Supported |
 | Overall and per-file summaries | Supported |
 | Line, branch, and function threshold gate | Supported |
+| Baseline comparison and regression allowances | Supported |
 | Unified-diff changed-line coverage | Supported |
 | Markdown and full-fidelity JSON output | Supported |
 | Cobertura XML parse and write | Supported |
@@ -139,6 +140,35 @@ Threshold values are percentages from `0` through `100`, inclusive. Equality
 passes. A dimension with no instrumented entries evaluates to 100%, so a
 line-only producer does not fail a branch gate merely because it cannot report
 branches.
+
+## Compare against a baseline
+
+Coverage deltas are percentage points, and regression allowances are inclusive:
+
+```mbt check
+///|
+test "README: baseline regression policy" {
+  let baseline = @mooncov.parse_lcov(
+    "SF:src/a.mbt\nDA:1,1\nDA:2,1\nend_of_record\n",
+  )
+  let current = @mooncov.parse_lcov(
+    "SF:src/a.mbt\nDA:1,1\nDA:2,0\nend_of_record\n",
+  )
+  let comparison = @mooncov.compare_reports(baseline, current)
+  inspect(comparison.lines.percentage_delta, content="-50")
+  let result = @mooncov.check_regressions(
+    baseline,
+    current,
+    @mooncov.RegressionLimits::new(lines=50.0),
+  )
+  assert_true(result.passed)
+}
+```
+
+`CoverageComparison::files` distinguishes added, removed, modified, and
+unchanged paths. `comparison_to_markdown` renders the overall and per-file
+changes for a pull request, while `regression_message` produces a short CI log
+result.
 
 ## Path normalization and filtering
 
@@ -298,6 +328,10 @@ moon run cmd/main -- gate lcov path/to/lcov.info 80
 
 # Merge two or more inputs of the same format and print LCOV
 moon run cmd/main -- merge lcov unit.info integration.info
+
+# Compare two reports or allow at most a 2-point line-coverage drop
+moon run cmd/main -- compare lcov baseline.info current.info
+moon run cmd/main -- regress lcov baseline.info current.info 2
 ```
 
 The root module prefers the native backend so `moon run cmd/main` works without
@@ -315,6 +349,8 @@ checks and tests it on every stable backend.
   `select_paths`;
 - Statistics: `summarize`, `summarize_file`, `summarize_files`;
 - Gates: `CoverageThresholds`, `check_thresholds`, `gate_message`;
+- Comparison: `compare_reports`, `RegressionLimits`, `check_regressions`,
+  `comparison_to_markdown`, `regression_message`;
 - Diff: `parse_unified_diff`, `summarize_diff`, `check_diff_threshold`;
 - Reports: `to_markdown`, `to_json_report`.
 

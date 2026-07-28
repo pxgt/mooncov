@@ -113,6 +113,17 @@ check that `CoverageCount::total` is nonzero.
 Gate thresholds must be finite values in the inclusive range 0–100. An actual
 percentage equal to its threshold passes.
 
+## Baseline comparison
+
+Metric deltas are calculated as `current percentage - baseline percentage` and
+reported in percentage points. File paths are canonicalized before a sorted
+union classifies each as added, removed, modified, or unchanged. A file is
+modified when its covered and total counts differ in any dimension.
+
+Regression allowances are non-negative percentage-point drops from 0 through
+100. Equality passes: a delta of -5 satisfies an allowed drop of 5. Dimensions
+absent from both reports remain at 100% and have a zero delta.
+
 ## Unified diff
 
 The parser uses destination (`+++`) paths and new-file ranges from `@@` hunk

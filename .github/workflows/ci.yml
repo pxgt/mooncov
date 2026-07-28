@@ -47,6 +47,8 @@ jobs:
           moon run cmd/main -- summary lcov examples/sample.info
           moon run cmd/main -- validate lcov examples/sample.info
           moon run cmd/main -- summary cobertura examples/sample.xml
+          moon run cmd/main -- compare lcov examples/sample.info examples/sample.info
+          moon run cmd/main -- regress lcov examples/sample.info examples/sample.info 0
 
       - name: Verify package artifact
         run: moon package

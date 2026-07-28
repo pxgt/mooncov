@@ -15,6 +15,7 @@ All notable changes to `mooncov` are documented here. The project follows
 - Duplicate-safe multi-report merge and canonicalization.
 - Overall and per-file coverage summaries.
 - Line, branch, and function percentage gates.
+- Baseline comparisons, file-change classification, and regression allowances.
 - Unified-diff range parsing and changed-line coverage gates.
 - Markdown and full-fidelity JSON reports.
 - Native file-oriented command-line example.
