@@ -10,7 +10,13 @@ pub fn canonicalize_report(CoverageReport, strip_prefix? : String) -> CoverageRe
 
 pub fn check_diff_threshold(CoverageReport, ArrayView[ChangedRange], Double) -> DiffGateResult raise CoverageError
 
+pub fn check_regressions(CoverageReport, CoverageReport, RegressionLimits) -> RegressionResult raise CoverageError
+
 pub fn check_thresholds(CoverageReport, CoverageThresholds) -> GateResult raise CoverageError
+
+pub fn compare_reports(CoverageReport, CoverageReport) -> CoverageComparison raise CoverageError
+
+pub fn comparison_to_markdown(CoverageComparison, title? : String, include_files? : Bool) -> String
 
 pub fn filter_report(CoverageReport, PathFilter) -> CoverageReport
 
@@ -22,11 +28,15 @@ pub fn merge_reports(ArrayView[CoverageReport], strip_prefix? : String) -> Cover
 
 pub fn normalize_path(String, strip_prefix? : String) -> String
 
+pub fn parse_cobertura(String, strip_prefix? : String) -> CoverageReport raise CoverageError
+
 pub fn parse_coveralls(String, strip_prefix? : String) -> CoverageReport raise CoverageError
 
 pub fn parse_lcov(String, strip_prefix? : String) -> CoverageReport raise CoverageError
 
 pub fn parse_unified_diff(String, strip_prefix? : String) -> Array[ChangedRange] raise CoverageError
+
+pub fn regression_message(RegressionResult) -> String
 
 pub fn select_paths(CoverageReport, Array[String], Array[String]) -> CoverageReport
 
@@ -37,6 +47,8 @@ pub fn summarize_diff(CoverageReport, ArrayView[ChangedRange]) -> DiffSummary ra
 pub fn summarize_file(FileCoverage) -> CoverageSummary raise CoverageError
 
 pub fn summarize_files(CoverageReport) -> Array[FileSummary] raise CoverageError
+
+pub fn to_cobertura(CoverageReport, source_root? : String) -> String raise CoverageError
 
 pub fn to_coveralls_json(CoverageReport, service_name? : String, service_job_id? : String) -> String raise CoverageError
 
@@ -52,6 +64,7 @@ pub(all) suberror CoverageError {
   InvalidHitCount(Int)
   InvalidLcov(Int, String)
   InvalidCoveralls(String)
+  InvalidCobertura(Int, String)
   InvalidModel(String)
   InvalidThreshold(String, Double)
   InvalidDiff(Int, String)
@@ -71,6 +84,15 @@ pub(all) struct CoverageBranch {
   taken : Int?
 } derive(Eq, @debug.Debug)
 pub fn CoverageBranch::is_covered(Self) -> Bool
+
+pub(all) struct CoverageComparison {
+  baseline : CoverageSummary
+  current : CoverageSummary
+  lines : MetricChange
+  branches : MetricChange
+  functions : MetricChange
+  files : Array[FileComparison]
+} derive(@debug.Debug)
 
 pub(all) struct CoverageCount {
   covered : Int
@@ -131,6 +153,20 @@ pub(all) struct DiffSummary {
   unmatched_files : Array[String]
 } derive(Eq, @debug.Debug)
 
+pub(all) enum FileChangeKind {
+  Added
+  Removed
+  Modified
+  Unchanged
+} derive(Eq, @debug.Debug)
+
+pub(all) struct FileComparison {
+  path : String
+  kind : FileChangeKind
+  before : CoverageSummary
+  after : CoverageSummary
+} derive(Eq, @debug.Debug)
+
 pub(all) struct FileCoverage {
   path : String
   test_name : String?
@@ -154,6 +190,12 @@ pub(all) struct GateResult {
   violations : Array[ThresholdViolation]
 } derive(@debug.Debug)
 
+pub(all) struct MetricChange {
+  before : CoverageCount
+  after : CoverageCount
+  percentage_delta : Double
+} derive(@debug.Debug)
+
 pub(all) struct PathFilter {
   includes : Array[String]
   excludes : Array[String]
@@ -161,6 +203,25 @@ pub(all) struct PathFilter {
 pub fn PathFilter::all() -> Self
 pub fn PathFilter::allows(Self, String) -> Bool
 pub fn PathFilter::new(Array[String], Array[String]) -> Self
+
+pub(all) struct RegressionLimits {
+  lines : Double?
+  branches : Double?
+  functions : Double?
+} derive(@debug.Debug)
+pub fn RegressionLimits::new(lines? : Double, branches? : Double, functions? : Double) -> Self
+
+pub(all) struct RegressionResult {
+  passed : Bool
+  comparison : CoverageComparison
+  violations : Array[RegressionViolation]
+} derive(@debug.Debug)
+
+pub(all) struct RegressionViolation {
+  metric : CoverageMetric
+  percentage_delta : Double
+  allowed_drop : Double
+} derive(@debug.Debug)
 
 pub(all) struct ThresholdViolation {
   metric : CoverageMetric
