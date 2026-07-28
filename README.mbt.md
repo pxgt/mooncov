@@ -238,9 +238,10 @@ let markdown : String = @mooncov.to_markdown(report)
 let json : String = @mooncov.to_json_report(report)
 ```
 
-All outputs are deterministic after canonicalization. LCOV records preserve
-file order while sorting their entries; the merge, Markdown, and unified JSON
-paths sort normalized files.
+All serializers canonicalize first: normalized files and their entries are
+deduplicated and sorted before output. Reordering equivalent input records
+therefore does not change LCOV, Coveralls JSON, Markdown, or unified JSON
+artifacts.
 
 ## Command-line example
 

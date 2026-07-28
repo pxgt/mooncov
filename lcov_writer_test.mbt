@@ -65,3 +65,18 @@ test "LCOV writer rejects record-breaking path text" {
     _ => fail("expected invalid model error")
   }
 }
+
+///|
+test "LCOV writer canonicalizes duplicate paths and entries" {
+  let first = @mooncov.FileCoverage::new("src/dup.mbt")
+  first.add_line(1, 2)
+  let second = @mooncov.FileCoverage::new("src/./dup.mbt")
+  second.add_line(1, 3)
+  let report = @mooncov.CoverageReport::new()
+  report.add_file(first)
+  report.add_file(second)
+  let output = @mooncov.to_lcov(report)
+  inspect(output.split("SF:").count(), content="2")
+  assert_true(output.contains("DA:1,5"))
+  assert_false(output.contains("DA:1,2"))
+}

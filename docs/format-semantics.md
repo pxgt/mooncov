@@ -39,9 +39,10 @@ coverage. Errors contain the one-based physical input line.
 
 ### Output
 
-Every output record includes `TN`, `SF`, calculated function totals, calculated
-line totals, calculated branch totals, and `end_of_record`. Entries are sorted
-by stable identity. A function whose declaration line is unknown has `FNDA`
+Serialization canonicalizes the whole report first. Every output record
+includes `TN`, `SF`, calculated function totals, calculated line totals,
+calculated branch totals, and `end_of_record`. Files and entries are sorted by
+stable identity. A function whose declaration line is unknown has `FNDA`
 output but no invented `FN` line.
 
 LCOV has no general escaping mechanism. Newlines in source paths, test names,

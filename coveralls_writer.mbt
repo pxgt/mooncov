@@ -90,7 +90,8 @@ pub fn to_coveralls_json(
   service_job_id? : String,
 ) -> String raise CoverageError {
   let source_files : Array[Json] = []
-  for file in report.files {
+  let canonical = canonicalize_report(report)
+  for file in canonical.files {
     source_files.push(coveralls_file_json(file))
   }
   let root : Map[String, Json] = {

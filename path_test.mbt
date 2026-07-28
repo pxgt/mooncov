@@ -9,6 +9,11 @@ test "normalize portable and absolute paths" {
     content="/workspace/src/main.mbt",
   )
   inspect(@mooncov.normalize_path("../src/lib.mbt"), content="../src/lib.mbt")
+  inspect(
+    @mooncov.normalize_path("C:\\..\\src\\lib.mbt"),
+    content="C:/src/lib.mbt",
+  )
+  inspect(@mooncov.normalize_path("C:\\"), content="C:/")
 }
 
 ///|

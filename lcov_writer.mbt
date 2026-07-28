@@ -121,7 +121,8 @@ fn write_lcov_file(
 /// within each record. Summary fields are calculated from the actual entries.
 pub fn to_lcov(report : CoverageReport) -> String raise CoverageError {
   let output = StringBuilder()
-  for file in report.files {
+  let canonical = canonicalize_report(report)
+  for file in canonical.files {
     write_lcov_file(output, file)
   }
   output.to_string()

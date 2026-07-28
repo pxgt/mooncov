@@ -124,7 +124,11 @@ pub fn parse_unified_diff(
         if start <= 0 {
           raise InvalidDiff(input_line, "non-empty hunk start must be positive")
         }
-        ranges.push({ path, start_line: start, end_line: start + count - 1 })
+        let end_line = start + count - 1
+        if end_line < start {
+          raise InvalidDiff(input_line, "new-file hunk range exceeds Int")
+        }
+        ranges.push({ path, start_line: start, end_line })
       }
     }
   }

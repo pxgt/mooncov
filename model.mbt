@@ -116,8 +116,8 @@ pub fn FileCoverage::add_branch(
 pub fn FileCoverage::add_function(
   self : FileCoverage,
   name : String,
-  line? : Int,
   hits : Int,
+  line? : Int,
 ) -> Unit raise CoverageError {
   if line is Some(value) && value <= 0 {
     raise InvalidLineNumber(value)

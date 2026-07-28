@@ -1,14 +1,20 @@
 ///|
 fn collapse_path(path : String) -> String {
   let slash_path = path.replace_all(old="\\", new="/")
-  let absolute = slash_path.has_prefix("/")
+  let unix_absolute = slash_path.has_prefix("/")
+  let drive_absolute = slash_path.length() >= 3 &&
+    slash_path[1] == ':' &&
+    slash_path[2] == '/'
+  let absolute = unix_absolute || drive_absolute
+  let protected_segments = if drive_absolute { 1 } else { 0 }
   let segments : Array[String] = []
   for view in slash_path.split("/") {
     let segment = "\{view}"
     match segment {
       "" | "." => ()
       ".." =>
-        if !segments.is_empty() && segments[segments.length() - 1] != ".." {
+        if segments.length() > protected_segments &&
+          segments[segments.length() - 1] != ".." {
           ignore(segments.pop())
         } else if !absolute {
           segments.push(segment)
@@ -17,12 +23,14 @@ fn collapse_path(path : String) -> String {
     }
   }
   let body = segments.join("/")
-  if absolute {
+  if unix_absolute {
     if body == "" {
       "/"
     } else {
       "/\{body}"
     }
+  } else if drive_absolute && segments.length() == 1 {
+    "\{body}/"
   } else {
     body
   }

@@ -71,3 +71,18 @@ test "Coveralls parser rejects missing source_files" {
     _ => fail("expected missing field error")
   }
 }
+
+///|
+test "Coveralls parser rejects integers outside MoonBit Int range" {
+  let input = "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[2147483648]}]}"
+  try @mooncov.parse_coveralls(input) catch {
+    InvalidCoveralls(message) =>
+      inspect(
+        message,
+        content="$.source_files[0].coverage[0]: integer is outside MoonBit Int range",
+      )
+    _ => fail("unexpected error")
+  } noraise {
+    _ => fail("expected out-of-range integer error")
+  }
+}

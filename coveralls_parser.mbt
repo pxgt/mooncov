@@ -40,7 +40,11 @@ fn coveralls_int(value : Json, path : String) -> Int raise CoverageError {
       if number.is_nan() || number.is_inf() || number.trunc() != number {
         raise coveralls_error(path, "expected finite integer")
       } else {
-        number.to_int()
+        let integer = number.to_int()
+        if integer.to_double() != number {
+          raise coveralls_error(path, "integer is outside MoonBit Int range")
+        }
+        integer
       }
     _ => raise coveralls_error(path, "expected number")
   }
@@ -66,7 +70,13 @@ fn branch_identifier(value : Json, path : String) -> String raise CoverageError 
       if number.is_nan() || number.is_inf() || number.trunc() != number {
         raise coveralls_error(path, "expected integer or string")
       } else {
-        number.to_int().to_string()
+        let integer = number.to_int()
+        if integer.to_double() != number {
+          raise coveralls_error(
+            path, "integer identifier is outside MoonBit Int range",
+          )
+        }
+        integer.to_string()
       }
     _ => raise coveralls_error(path, "expected integer or string")
   }
