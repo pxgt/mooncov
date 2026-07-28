@@ -26,10 +26,7 @@ fn coveralls_array(
 }
 
 ///|
-fn coveralls_string(
-  value : Json,
-  path : String,
-) -> String raise CoverageError {
+fn coveralls_string(value : Json, path : String) -> String raise CoverageError {
   match value {
     String(text) => text
     _ => raise coveralls_error(path, "expected string")
@@ -37,15 +34,10 @@ fn coveralls_string(
 }
 
 ///|
-fn coveralls_int(
-  value : Json,
-  path : String,
-) -> Int raise CoverageError {
+fn coveralls_int(value : Json, path : String) -> Int raise CoverageError {
   match value {
     Number(number, repr=_) =>
-      if number.is_nan() ||
-        number.is_inf() ||
-        number.trunc() != number {
+      if number.is_nan() || number.is_inf() || number.trunc() != number {
         raise coveralls_error(path, "expected finite integer")
       } else {
         number.to_int()
@@ -67,16 +59,11 @@ fn required_coveralls_field(
 }
 
 ///|
-fn branch_identifier(
-  value : Json,
-  path : String,
-) -> String raise CoverageError {
+fn branch_identifier(value : Json, path : String) -> String raise CoverageError {
   match value {
     String(text) => text
     Number(number, repr=_) =>
-      if number.is_nan() ||
-        number.is_inf() ||
-        number.trunc() != number {
+      if number.is_nan() || number.is_inf() || number.trunc() != number {
         raise coveralls_error(path, "expected integer or string")
       } else {
         number.to_int().to_string()
@@ -116,27 +103,17 @@ fn parse_coveralls_branches(
 ) -> Unit raise CoverageError {
   if branches.length() % 4 != 0 {
     raise coveralls_error(
-      path,
-      "flattened branch array length must be divisible by four",
+      path, "flattened branch array length must be divisible by four",
     )
   }
   for group in 0..<(branches.length() / 4) {
     let index = group * 4
     let line = coveralls_int(branches[index], "\{path}[\{index}]")
     if line <= 0 {
-      raise coveralls_error(
-        "\{path}[\{index}]",
-        "branch line must be positive",
-      )
+      raise coveralls_error("\{path}[\{index}]", "branch line must be positive")
     }
-    let block = branch_identifier(
-      branches[index + 1],
-      "\{path}[\{index + 1}]",
-    )
-    let branch = branch_identifier(
-      branches[index + 2],
-      "\{path}[\{index + 2}]",
-    )
+    let block = branch_identifier(branches[index + 1], "\{path}[\{index + 1}]")
+    let branch = branch_identifier(branches[index + 2], "\{path}[\{index + 2}]")
     let taken = match branches[index + 3] {
       Null => None
       value => {

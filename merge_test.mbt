@@ -34,10 +34,7 @@ test "merge matching normalized files by coverage identity" {
     7,
     test_name="unit",
   )
-  let merged = @mooncov.merge_reports(
-    [first, second],
-    strip_prefix="D:/repo",
-  )
+  let merged = @mooncov.merge_reports([first, second], strip_prefix="D:/repo")
   inspect(merged.files.length(), content="1")
   inspect(merged.files[0].path, content="src/work.mbt")
   inspect(merged.files[0].lines[0].hits, content="7")
@@ -80,13 +77,7 @@ test "canonicalization coalesces duplicate entries and sorts files" {
 
 ///|
 test "merge clears conflicting test names" {
-  let first = make_merge_report(
-    "src/a.mbt",
-    1,
-    Some(1),
-    1,
-    test_name="unit",
-  )
+  let first = make_merge_report("src/a.mbt", 1, Some(1), 1, test_name="unit")
   let second = make_merge_report(
     "src/a.mbt",
     1,
@@ -101,13 +92,15 @@ test "merge clears conflicting test names" {
 ///|
 test "merge rejects negative counts from manually constructed models" {
   let report : @mooncov.CoverageReport = {
-    files: [{
-      path: "src/bad.mbt",
-      test_name: None,
-      lines: [{ line: 1, hits: -1 }],
-      branches: [],
-      functions: [],
-    }],
+    files: [
+      {
+        path: "src/bad.mbt",
+        test_name: None,
+        lines: [{ line: 1, hits: -1 }],
+        branches: [],
+        functions: [],
+      },
+    ],
   }
   try @mooncov.merge_reports([report]) catch {
     InvalidModel(message) =>

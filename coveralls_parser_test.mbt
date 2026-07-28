@@ -32,8 +32,7 @@ test "parse empty Coveralls source list" {
 
 ///|
 test "Coveralls parser rejects fractional hit counts with a JSON path" {
-  let input =
-    "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[1.5]}]}"
+  let input = "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[1.5]}]}"
   try @mooncov.parse_coveralls(input) catch {
     InvalidCoveralls(message) =>
       inspect(
@@ -48,16 +47,13 @@ test "Coveralls parser rejects fractional hit counts with a JSON path" {
 
 ///|
 test "Coveralls parser rejects malformed flattened branches" {
-  let input =
-    "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[]," +
+  let input = "{\"source_files\":[{\"name\":\"src/a.mbt\",\"coverage\":[]," +
     "\"branches\":[1,0,0]}]}"
   try @mooncov.parse_coveralls(input) catch {
     InvalidCoveralls(message) =>
       inspect(
         message,
-        content=(
-          "$.source_files[0].branches: flattened branch array length must be divisible by four"
-        ),
+        content="$.source_files[0].branches: flattened branch array length must be divisible by four",
       )
     _ => fail("unexpected error")
   } noraise {

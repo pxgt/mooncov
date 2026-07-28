@@ -29,11 +29,7 @@ fn parse_lcov_int(
   field : String,
 ) -> Int raise CoverageError {
   @strconv.from_str(value) catch {
-    _ =>
-      raise InvalidLcov(
-        input_line,
-        "invalid integer for \{field}: \{value}",
-      )
+    _ => raise InvalidLcov(input_line, "invalid integer for \{field}: \{value}")
   }
 }
 
@@ -64,8 +60,7 @@ fn parse_lcov_function_definition(
       remember_function(builder, name)
       builder.function_lines[name] = line
     }
-    None =>
-      raise InvalidLcov(input_line, "FN must contain line,name")
+    None => raise InvalidLcov(input_line, "FN must contain line,name")
   }
 }
 
@@ -88,8 +83,7 @@ fn parse_lcov_function_hits(
       remember_function(builder, name)
       builder.function_hits.update_or_default(name, hits, old => old + hits)
     }
-    None =>
-      raise InvalidLcov(input_line, "FNDA must contain hits,name")
+    None => raise InvalidLcov(input_line, "FNDA must contain hits,name")
   }
 }
 
@@ -122,10 +116,7 @@ fn parse_lcov_branch(
 ) -> Unit raise CoverageError {
   let fields = value.split(",").to_array()
   if fields.length() != 4 {
-    raise InvalidLcov(
-      input_line,
-      "BRDA must contain line,block,branch,taken",
-    )
+    raise InvalidLcov(input_line, "BRDA must contain line,block,branch,taken")
   }
   let line = parse_lcov_int(fields[0], input_line, "BRDA line")
   if line <= 0 {
@@ -227,7 +218,8 @@ pub fn parse_lcov(
     }
     let tag = "\{tag_view}"
     match tag {
-      "TN" => builder.test_name = if value == "" { None } else { Some("\{value}") }
+      "TN" =>
+        builder.test_name = if value == "" { None } else { Some("\{value}") }
       "SF" =>
         if builder.path is Some(_) {
           raise InvalidLcov(input_line, "multiple SF entries in one record")

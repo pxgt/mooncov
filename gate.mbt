@@ -47,10 +47,7 @@ fn validate_threshold(
 ) -> Unit raise CoverageError {
   match value {
     Some(number) =>
-      if number.is_nan() ||
-        number.is_inf() ||
-        number < 0.0 ||
-        number > 100.0 {
+      if number.is_nan() || number.is_inf() || number < 0.0 || number > 100.0 {
         raise InvalidThreshold(metric, number)
       }
     None => ()
@@ -87,12 +84,7 @@ pub fn check_thresholds(
   validate_threshold("functions", thresholds.functions)
   let summary = summarize(report)
   let violations : Array[ThresholdViolation] = []
-  add_violation(
-    violations,
-    Lines,
-    summary.lines.percentage(),
-    thresholds.lines,
-  )
+  add_violation(violations, Lines, summary.lines.percentage(), thresholds.lines)
   add_violation(
     violations,
     Branches,

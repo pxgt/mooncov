@@ -47,9 +47,15 @@ fn copy_file_coverage(file : FileCoverage) -> FileCoverage {
   {
     path: file.path,
     test_name: file.test_name,
-    lines: [for line in file.lines => line],
-    branches: [for branch in file.branches => branch],
-    functions: [for function in file.functions => function],
+    lines: [
+      for line in file.lines => line
+    ],
+    branches: [
+      for branch in file.branches => branch
+    ],
+    functions: [
+      for function in file.functions => function
+    ],
   }
 }
 
@@ -61,9 +67,9 @@ pub fn filter_report(
 ) -> CoverageReport {
   {
     files: [
-      for file in report.files
-      if filter.allows(file.path)
-      => copy_file_coverage(file)
+      for file in report.files if filter.allows(file.path) => {
+        copy_file_coverage(file)
+      }
     ],
   }
 }

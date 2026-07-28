@@ -4,10 +4,7 @@ fn compare_lines(left : CoverageLine, right : CoverageLine) -> Int {
 }
 
 ///|
-fn compare_branches(
-  left : CoverageBranch,
-  right : CoverageBranch,
-) -> Int {
+fn compare_branches(left : CoverageBranch, right : CoverageBranch) -> Int {
   let by_line = left.line.compare(right.line)
   if by_line != 0 {
     return by_line
@@ -30,10 +27,7 @@ fn compare_optional_lines(left : Int?, right : Int?) -> Int {
 }
 
 ///|
-fn compare_functions(
-  left : CoverageFunction,
-  right : CoverageFunction,
-) -> Int {
+fn compare_functions(left : CoverageFunction, right : CoverageFunction) -> Int {
   let by_line = compare_optional_lines(left.line, right.line)
   if by_line != 0 {
     return by_line
@@ -62,7 +56,7 @@ fn write_lcov_file(
     None => output.write_string("TN:\n")
   }
   output.write_string("SF:\{file.path}\n")
-  let functions = [for function in file.functions => function]
+  let functions = [ for function in file.functions => function ]
   functions.sort_by(compare_functions)
   for function in functions {
     check_lcov_text("function name", function.name)
@@ -74,24 +68,30 @@ fn write_lcov_file(
   for function in functions {
     output.write_string("FNDA:\{function.hits},\{function.name}\n")
   }
-  let functions_hit = functions.fold(
-    init=0,
-    (count, function) => if function.hits > 0 { count + 1 } else { count },
-  )
+  let functions_hit = functions.fold(init=0, (count, function) => {
+    if function.hits > 0 {
+      count + 1
+    } else {
+      count
+    }
+  })
   output.write_string("FNF:\{functions.length()}\n")
   output.write_string("FNH:\{functions_hit}\n")
-  let lines = [for line in file.lines => line]
+  let lines = [ for line in file.lines => line ]
   lines.sort_by(compare_lines)
   for line in lines {
     output.write_string("DA:\{line.line},\{line.hits}\n")
   }
-  let lines_hit = lines.fold(
-    init=0,
-    (count, line) => if line.hits > 0 { count + 1 } else { count },
-  )
+  let lines_hit = lines.fold(init=0, (count, line) => {
+    if line.hits > 0 {
+      count + 1
+    } else {
+      count
+    }
+  })
   output.write_string("LF:\{lines.length()}\n")
   output.write_string("LH:\{lines_hit}\n")
-  let branches = [for branch in file.branches => branch]
+  let branches = [ for branch in file.branches => branch ]
   branches.sort_by(compare_branches)
   for branch in branches {
     let taken = match branch.taken {
@@ -102,10 +102,13 @@ fn write_lcov_file(
       "BRDA:\{branch.line},\{branch.block},\{branch.branch},\{taken}\n",
     )
   }
-  let branches_hit = branches.fold(
-    init=0,
-    (count, branch) => if branch.is_covered() { count + 1 } else { count },
-  )
+  let branches_hit = branches.fold(init=0, (count, branch) => {
+    if branch.is_covered() {
+      count + 1
+    } else {
+      count
+    }
+  })
   output.write_string("BRF:\{branches.length()}\n")
   output.write_string("BRH:\{branches_hit}\n")
   output.write_string("end_of_record\n")

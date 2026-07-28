@@ -36,24 +36,33 @@ pub fn CoverageCount::percentage(self : CoverageCount) -> Double {
 ///|
 fn summarize_canonical_file(file : FileCoverage) -> CoverageSummary {
   let lines = {
-    covered: file.lines.fold(
-      init=0,
-      (count, item) => if item.is_covered() { count + 1 } else { count },
-    ),
+    covered: file.lines.fold(init=0, (count, item) => {
+      if item.is_covered() {
+        count + 1
+      } else {
+        count
+      }
+    }),
     total: file.lines.length(),
   }
   let branches = {
-    covered: file.branches.fold(
-      init=0,
-      (count, item) => if item.is_covered() { count + 1 } else { count },
-    ),
+    covered: file.branches.fold(init=0, (count, item) => {
+      if item.is_covered() {
+        count + 1
+      } else {
+        count
+      }
+    }),
     total: file.branches.length(),
   }
   let functions = {
-    covered: file.functions.fold(
-      init=0,
-      (count, item) => if item.is_covered() { count + 1 } else { count },
-    ),
+    covered: file.functions.fold(init=0, (count, item) => {
+      if item.is_covered() {
+        count + 1
+      } else {
+        count
+      }
+    }),
     total: file.functions.length(),
   }
   { lines, branches, functions }
@@ -61,10 +70,7 @@ fn summarize_canonical_file(file : FileCoverage) -> CoverageSummary {
 
 ///|
 fn add_counts(left : CoverageCount, right : CoverageCount) -> CoverageCount {
-  {
-    covered: left.covered + right.covered,
-    total: left.total + right.total,
-  }
+  { covered: left.covered + right.covered, total: left.total + right.total }
 }
 
 ///|
@@ -104,11 +110,9 @@ pub fn summarize(
   report : CoverageReport,
 ) -> CoverageSummary raise CoverageError {
   let canonical = canonicalize_report(report)
-  canonical.files.fold(
-    init=empty_summary(),
-    (summary, file) =>
-      add_summaries(summary, summarize_canonical_file(file)),
-  )
+  canonical.files.fold(init=empty_summary(), (summary, file) => {
+    add_summaries(summary, summarize_canonical_file(file))
+  })
 }
 
 ///|
@@ -119,8 +123,7 @@ pub fn summarize_files(
   let canonical = canonicalize_report(report)
   [
     for file in canonical.files => {
-      path: file.path,
-      summary: summarize_canonical_file(file),
+      { path: file.path, summary: summarize_canonical_file(file) }
     }
   ]
 }

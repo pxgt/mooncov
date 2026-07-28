@@ -8,10 +8,7 @@ priv struct FileAccumulator {
 }
 
 ///|
-fn FileAccumulator::new(
-  path : String,
-  test_name : String?,
-) -> FileAccumulator {
+fn FileAccumulator::new(path : String, test_name : String?) -> FileAccumulator {
   { path, test_name, lines: {}, branches: {}, functions: {} }
 }
 
@@ -60,11 +57,9 @@ fn FileAccumulator::add_file(
     if line.hits < 0 {
       raise InvalidModel("line hit count must not be negative")
     }
-    self.lines.update_or_default(
-      line.line,
-      line.hits,
-      previous => previous + line.hits,
-    )
+    self.lines.update_or_default(line.line, line.hits, previous => {
+      previous + line.hits
+    })
   }
   for branch in file.branches {
     if branch.line <= 0 {
@@ -111,17 +106,11 @@ fn FileAccumulator::finish(self : FileAccumulator) -> FileCoverage {
     for line, hits in self.lines => { line, hits }
   ]
   lines.sort_by(compare_lines)
-  let branches = [for _, branch in self.branches => branch]
+  let branches = [ for _, branch in self.branches => branch ]
   branches.sort_by(compare_branches)
-  let functions = [for _, function in self.functions => function]
+  let functions = [ for _, function in self.functions => function ]
   functions.sort_by(compare_functions)
-  {
-    path: self.path,
-    test_name: self.test_name,
-    lines,
-    branches,
-    functions,
-  }
+  { path: self.path, test_name: self.test_name, lines, branches, functions }
 }
 
 ///|
@@ -153,7 +142,7 @@ pub fn merge_reports(
       accumulator.add_file(file)
     }
   }
-  let files = [for _, accumulator in accumulators => accumulator.finish()]
+  let files = [ for _, accumulator in accumulators => accumulator.finish() ]
   files.sort_by((left, right) => left.path.compare(right.path))
   { files, }
 }

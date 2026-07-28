@@ -124,11 +124,7 @@ pub fn parse_unified_diff(
         if start <= 0 {
           raise InvalidDiff(input_line, "non-empty hunk start must be positive")
         }
-        ranges.push({
-          path,
-          start_line: start,
-          end_line: start + count - 1,
-        })
+        ranges.push({ path, start_line: start, end_line: start + count - 1 })
       }
     }
   }
@@ -142,9 +138,7 @@ fn line_in_changed_ranges(
   ranges : ArrayView[ChangedRange],
 ) -> Bool {
   for range in ranges {
-    if range.path == path &&
-      line >= range.start_line &&
-      line <= range.end_line {
+    if range.path == path && line >= range.start_line && line <= range.end_line {
       return true
     }
   }
@@ -152,10 +146,7 @@ fn line_in_changed_ranges(
 }
 
 ///|
-fn range_path_matches(
-  path : String,
-  ranges : ArrayView[ChangedRange],
-) -> Bool {
+fn range_path_matches(path : String, ranges : ArrayView[ChangedRange]) -> Bool {
   ranges.any(range => range.path == path)
 }
 
@@ -202,7 +193,7 @@ pub fn summarize_diff(
       unmatched_set[range.path] = ()
     }
   }
-  let unmatched_files = [for path, _ in unmatched_set => path]
+  let unmatched_files = [ for path, _ in unmatched_set => path ]
   unmatched_files.sort()
   {
     lines: { covered, total },

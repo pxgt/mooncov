@@ -18,17 +18,12 @@ fn usage() -> String {
 }
 
 ///|
-fn read_report(
-  format : String,
-  path : String,
-) -> @mooncov.CoverageReport raise {
+fn read_report(format : String, path : String) -> @mooncov.CoverageReport raise {
   let input = @fs.read_file_to_string(path)
   match format {
     "lcov" => @mooncov.parse_lcov(input)
     "coveralls" => @mooncov.parse_coveralls(input)
-    _ => raise @mooncov.InvalidModel(
-      "input format must be lcov or coveralls",
-    )
+    _ => raise @mooncov.InvalidModel("input format must be lcov or coveralls")
   }
 }
 
@@ -51,9 +46,7 @@ fn print_demo() -> Unit raise {
 ///|
 fn parse_minimum(value : String) -> Double raise {
   let minimum : Double = @strconv.from_str(value) catch {
-    _ => raise @mooncov.InvalidModel(
-      "minimum line coverage must be a number",
-    )
+    _ => raise @mooncov.InvalidModel("minimum line coverage must be a number")
   }
   minimum
 }
@@ -104,9 +97,7 @@ fn run_command(args : Array[String]) -> Unit raise {
         let report = read_report(args[2], args[3])
         let result = @mooncov.check_thresholds(
           report,
-          @mooncov.CoverageThresholds::new(
-            lines=parse_minimum(args[4]),
-          ),
+          @mooncov.CoverageThresholds::new(lines=parse_minimum(args[4])),
         )
         println(@mooncov.gate_message(result))
         if !result.passed {

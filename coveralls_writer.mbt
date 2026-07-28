@@ -5,11 +5,7 @@ fn json_integer(value : Int) -> Json {
 
 ///|
 fn coveralls_branch_identifier_json(value : String) -> Json {
-  let parsed : Int? = try {
-    Some(@strconv.from_str(value))
-  } catch {
-    _ => None
-  }
+  let parsed : Int? = Some(@strconv.from_str(value)) catch { _ => None }
   match parsed {
     Some(number) => json_integer(number)
     None => Json::string(value)
@@ -17,9 +13,7 @@ fn coveralls_branch_identifier_json(value : String) -> Json {
 }
 
 ///|
-fn coveralls_line_array(
-  file : FileCoverage,
-) -> Array[Json] raise CoverageError {
+fn coveralls_line_array(file : FileCoverage) -> Array[Json] raise CoverageError {
   let counts : Map[Int, Int] = {}
   let mut max_line = 0
   for item in file.lines {
@@ -29,21 +23,17 @@ fn coveralls_line_array(
     if item.hits < 0 {
       raise InvalidModel("line hit count must not be negative")
     }
-    counts.update_or_default(
-      item.line,
-      item.hits,
-      old => old + item.hits,
-    )
+    counts.update_or_default(item.line, item.hits, old => old + item.hits)
     if item.line > max_line {
       max_line = item.line
     }
   }
-  Array::makei(max_line, index =>
+  Array::makei(max_line, index => {
     match counts.get(index + 1) {
       Some(hits) => json_integer(hits)
       None => Json::null()
-    },
-  )
+    }
+  })
 }
 
 ///|
@@ -51,7 +41,7 @@ fn coveralls_branch_array(
   file : FileCoverage,
 ) -> Array[Json] raise CoverageError {
   let flattened : Array[Json] = []
-  let branches = [for branch in file.branches => branch]
+  let branches = [ for branch in file.branches => branch ]
   branches.sort_by(compare_branches)
   for branch in branches {
     if branch.line <= 0 {
@@ -76,9 +66,7 @@ fn coveralls_branch_array(
 }
 
 ///|
-fn coveralls_file_json(
-  file : FileCoverage,
-) -> Json raise CoverageError {
+fn coveralls_file_json(file : FileCoverage) -> Json raise CoverageError {
   let object : Map[String, Json] = {
     "name": Json::string(file.path),
     "coverage": Json::array(coveralls_line_array(file)),

@@ -1,9 +1,6 @@
 ///|
 test "construct a report through the public model API" {
-  let file = @mooncov.FileCoverage::new(
-    "src/math.mbt",
-    test_name="unit-tests",
-  )
+  let file = @mooncov.FileCoverage::new("src/math.mbt", test_name="unit-tests")
   file.add_line(3, 2)
   file.add_line(8, 0)
   file.add_branch(8, "0", "1", Some(0))

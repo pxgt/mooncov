@@ -20,15 +20,10 @@ test "parse LCOV lines, branches, and functions" {
     #|BRH:1
     #|end_of_record
     #|
-  let report = @mooncov.parse_lcov(
-    input,
-    strip_prefix="D:/workspace",
-  )
+  let report = @mooncov.parse_lcov(input, strip_prefix="D:/workspace")
   let file = report.files[0]
   inspect(file.path, content="src/math.mbt")
-  guard file.test_name is Some(test_name) else {
-    fail("expected test name")
-  }
+  guard file.test_name is Some(test_name) else { fail("expected test name") }
   inspect(test_name, content="moon-test")
   inspect(file.lines.length(), content="3")
   inspect(file.branches.length(), content="2")
@@ -39,8 +34,7 @@ test "parse LCOV lines, branches, and functions" {
 
 ///|
 test "parse multiple LCOV records and tolerate missing final terminator" {
-  let input =
-    "SF:src/a.mbt\r\nDA:1,1\r\nend_of_record\r\n" +
+  let input = "SF:src/a.mbt\r\nDA:1,1\r\nend_of_record\r\n" +
     "TN:second\r\nSF:src/b.mbt\r\nDA:7,0\r\n"
   let report = @mooncov.parse_lcov(input)
   inspect(report.files.length(), content="2")
@@ -72,10 +66,7 @@ test "LCOV parser reports the physical line for malformed entries" {
   try @mooncov.parse_lcov(input) catch {
     InvalidLcov(line, message) => {
       inspect(line, content="3")
-      inspect(
-        message,
-        content="invalid integer for DA line: not-a-line",
-      )
+      inspect(message, content="invalid integer for DA line: not-a-line")
     }
     _ => fail("unexpected error")
   } noraise {

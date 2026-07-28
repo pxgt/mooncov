@@ -14,10 +14,7 @@ test "normalize portable and absolute paths" {
 ///|
 test "strip only a complete normalized path prefix" {
   inspect(
-    @mooncov.normalize_path(
-      "C:\\repo\\src\\lib.mbt",
-      strip_prefix="C:/repo",
-    ),
+    @mooncov.normalize_path("C:\\repo\\src\\lib.mbt", strip_prefix="C:/repo"),
     content="src/lib.mbt",
   )
   inspect(

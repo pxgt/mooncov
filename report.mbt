@@ -114,13 +114,17 @@ fn unified_file_json(file : FileCoverage) -> Json {
       None => Json::null()
     },
     "summary": summary_json(summarize_canonical_file(file)),
-    "lines": Json::array([for line in file.lines => line_json(line)]),
-    "branches": Json::array([
-      for branch in file.branches => branch_json(branch)
-    ]),
-    "functions": Json::array([
-      for function in file.functions => function_json(function)
-    ]),
+    "lines": Json::array([ for line in file.lines => line_json(line) ]),
+    "branches": Json::array(
+      [
+        for branch in file.branches => branch_json(branch)
+      ],
+    ),
+    "functions": Json::array(
+      [
+        for function in file.functions => function_json(function)
+      ],
+    ),
   })
 }
 
@@ -140,15 +144,15 @@ pub fn to_json_report(
   let root = Json::object({
     "format": Json::string("mooncov-report-v1"),
     "summary": summary_json(
-      canonical.files.fold(
-        init=empty_summary(),
-        (acc, file) =>
-          add_summaries(acc, summarize_canonical_file(file)),
-      ),
+      canonical.files.fold(init=empty_summary(), (acc, file) => {
+        add_summaries(acc, summarize_canonical_file(file))
+      }),
     ),
-    "files": Json::array([
-      for file in canonical.files => unified_file_json(file)
-    ]),
+    "files": Json::array(
+      [
+        for file in canonical.files => unified_file_json(file)
+      ],
+    ),
   })
   root.stringify(indent~)
 }

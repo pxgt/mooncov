@@ -64,10 +64,7 @@ fn remove_normalized_prefix(path : String, prefix : String) -> String {
 ///   )
 /// }
 /// ```
-pub fn normalize_path(
-  path : String,
-  strip_prefix? : String = "",
-) -> String {
+pub fn normalize_path(path : String, strip_prefix? : String = "") -> String {
   let normalized = collapse_path(path)
   remove_normalized_prefix(normalized, collapse_path(strip_prefix))
 }
@@ -123,10 +120,5 @@ fn glob_chars(
 pub fn glob_match(pattern : String, path : String) -> Bool {
   let normalized_pattern = pattern.replace_all(old="\\", new="/")
   let normalized_path = normalize_path(path)
-  glob_chars(
-    normalized_pattern.to_array(),
-    0,
-    normalized_path.to_array(),
-    0,
-  )
+  glob_chars(normalized_pattern.to_array(), 0, normalized_path.to_array(), 0)
 }

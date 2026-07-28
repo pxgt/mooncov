@@ -21,10 +21,7 @@ test "Markdown report contains overall and escaped file rows" {
 
 ///|
 test "Markdown report can omit file details" {
-  let output = @mooncov.to_markdown(
-    report_fixture(),
-    include_files=false,
-  )
+  let output = @mooncov.to_markdown(report_fixture(), include_files=false)
   assert_true(output.contains("**Overall**"))
   assert_false(output.contains("src/lib"))
 }

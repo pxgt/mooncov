@@ -38,19 +38,12 @@ test "empty dimensions are gate-neutral at one hundred percent" {
 test "threshold equality passes while stricter values fail" {
   let exact = @mooncov.check_thresholds(
     summary_fixture(),
-    @mooncov.CoverageThresholds::new(
-      lines=50.0,
-      branches=50.0,
-      functions=50.0,
-    ),
+    @mooncov.CoverageThresholds::new(lines=50.0, branches=50.0, functions=50.0),
   )
   assert_true(exact.passed)
   let strict = @mooncov.check_thresholds(
     summary_fixture(),
-    @mooncov.CoverageThresholds::new(
-      lines=50.1,
-      branches=90.0,
-    ),
+    @mooncov.CoverageThresholds::new(lines=50.1, branches=90.0),
   )
   assert_false(strict.passed)
   inspect(strict.violations.length(), content="2")
@@ -71,10 +64,12 @@ test "summaries coalesce duplicate entries before counting totals" {
 ///|
 test "invalid percentages are rejected before gate evaluation" {
   let report = @mooncov.CoverageReport::new()
-  try @mooncov.check_thresholds(
-    report,
-    @mooncov.CoverageThresholds::new(lines=101.0),
-  ) catch {
+  try
+    @mooncov.check_thresholds(
+      report,
+      @mooncov.CoverageThresholds::new(lines=101.0),
+    )
+  catch {
     InvalidThreshold(metric, value) => {
       inspect(metric, content="lines")
       inspect(value, content="101")
