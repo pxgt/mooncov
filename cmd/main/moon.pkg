@@ -1,0 +1,12 @@
+import {
+  "Xpeng/mooncov",
+  "moonbitlang/core/strconv",
+  "moonbitlang/x/fs",
+  "moonbitlang/x/sys",
+}
+
+supported_targets = "native"
+
+options(
+  "is-main": true,
+)

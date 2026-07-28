@@ -17,3 +17,11 @@ keywords = [
 ]
 
 description = "Coverage report parsing, merging, filtering, gating, and conversion for MoonBit projects."
+
+import {
+  "moonbitlang/x@0.4.45",
+}
+
+options(
+  "preferred-target": "native",
+)
