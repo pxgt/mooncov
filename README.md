@@ -72,9 +72,9 @@ moon fmt --check
 moon info --target all
 moon check --target all --deny-warn --warn-list +73
 moon build --target all
-moon test --target all --deny-warn
+moon test --target all --deny-warn --warn-list +73
 moon run cmd/main
-moon package
+moon package --frozen
 git diff --exit-code
 ```
 
@@ -86,7 +86,11 @@ GitHub Actions 会执行格式、接口、检查、构建、测试、示例和�
 [README.mbt.md](README.mbt.md) 是详细文档，包含 API 说明、格式语义、
 边界条件和会参与 MoonBit 检查与测试的 `mbt check` 示例。
 更多设计说明见 [docs/format-semantics.md](docs/format-semantics.md)，
-CI 用法见 [docs/recipes.md](docs/recipes.md)。
+CI 用法见 [docs/recipes.md](docs/recipes.md)。项目结构与数据流记录在
+[docs/architecture.md](docs/architecture.md)，可复现的验收命令和结果见
+[docs/verification.md](docs/verification.md)。贡献规则、安全策略和版本记录分别见
+[CONTRIBUTING.md](CONTRIBUTING.md)、[SECURITY.md](SECURITY.md) 和
+[CHANGELOG.md](CHANGELOG.md)。
 
 ## 来源说明
 
