@@ -169,7 +169,7 @@ fn exit_with_error(message : String) -> Unit {
 
 ///|
 fn main {
-  try run_command(@sys.get_cli_args()) catch {
+  try run_command(@env.args()) catch {
     @mooncov.InvalidLineNumber(line) =>
       exit_with_error("invalid line number: \{line}")
     @mooncov.InvalidHitCount(hits) =>

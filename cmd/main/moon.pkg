@@ -1,5 +1,6 @@
 import {
   "Xpeng/mooncov",
+  "moonbitlang/core/env",
   "moonbitlang/core/strconv",
   "moonbitlang/x/fs",
   "moonbitlang/x/sys",
