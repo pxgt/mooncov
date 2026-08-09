@@ -3,6 +3,20 @@
 All notable changes to `mooncov` are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## 0.1.1 - 2026-08-09
+
+### Fixed
+
+- Use `moonbitlang/core/env.args` in the native CLI so it links with the current
+  MoonBit native runtime.
+
+### Changed
+
+- Refresh generated interfaces with MoonBit 0.1.20260803.
+- Add architecture and reproducible verification records.
+- Run warning 73 checks during tests and verify the frozen package artifact in
+  CI.
+
 ## 0.1.0 - 2026-07-28
 
 ### Added
