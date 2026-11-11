@@ -2,14 +2,14 @@
 priv struct FileAccumulator {
   path : String
   mut test_name : String?
-  lines : Map[Int, Int]
+  lines : Map[Int32, Int32]
   branches : Map[String, CoverageBranch]
   functions : Map[String, CoverageFunction]
 }
 
 ///|
 fn FileAccumulator::new(path : String, test_name : String?) -> FileAccumulator {
-  { path, test_name, lines: {}, branches: {}, functions: {} }
+  { path, test_name, lines: {}, branches: {}, functions: {}, }
 }
 
 ///|
@@ -22,7 +22,7 @@ fn combine_test_names(left : String?, right : String?) -> String? {
 }
 
 ///|
-fn merge_taken(left : Int?, right : Int?) -> Int? {
+fn merge_taken(left : Int32?, right : Int32?) -> Int32? {
   match (left, right) {
     (None, None) => None
     (Some(value), None) | (None, Some(value)) => Some(value)
@@ -103,14 +103,14 @@ fn FileAccumulator::add_file(
 ///|
 fn FileAccumulator::finish(self : FileAccumulator) -> FileCoverage {
   let lines : Array[CoverageLine] = [
-    for line, hits in self.lines => { line, hits }
+    for line, hits in self.lines => { line, hits, }
   ]
   lines.sort_by(compare_lines)
   let branches = [ for _, branch in self.branches => branch ]
   branches.sort_by(compare_branches)
   let functions = [ for _, function in self.functions => function ]
   functions.sort_by(compare_functions)
-  { path: self.path, test_name: self.test_name, lines, branches, functions }
+  { path: self.path, test_name: self.test_name, lines, branches, functions, }
 }
 
 ///|
@@ -122,7 +122,7 @@ fn FileAccumulator::finish(self : FileAccumulator) -> FileCoverage {
 /// names are cleared rather than reporting a misleading single producer.
 pub fn merge_reports(
   reports : ArrayView[CoverageReport],
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> CoverageReport raise CoverageError {
   let accumulators : Map[String, FileAccumulator] = Map([])
   for report in reports {
@@ -151,7 +151,7 @@ pub fn merge_reports(
 /// Deduplicate and deterministically sort one report.
 pub fn canonicalize_report(
   report : CoverageReport,
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> CoverageReport raise CoverageError {
   merge_reports([report], strip_prefix~)
 }

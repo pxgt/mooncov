@@ -52,39 +52,43 @@ pub fn to_cobertura(CoverageReport, source_root? : String) -> String raise Cover
 
 pub fn to_coveralls_json(CoverageReport, service_name? : String, service_job_id? : String) -> String raise CoverageError
 
-pub fn to_json_report(CoverageReport, indent? : Int) -> String raise CoverageError
+pub fn to_json_report(CoverageReport, indent? : Int32) -> String raise CoverageError
 
 pub fn to_lcov(CoverageReport) -> String raise CoverageError
 
 pub fn to_markdown(CoverageReport, title? : String, include_files? : Bool) -> String raise CoverageError
 
 // Errors
+#derive(Eq, @debug.Debug)
 pub(all) suberror CoverageError {
-  InvalidLineNumber(Int)
-  InvalidHitCount(Int)
-  InvalidLcov(Int, String)
+  InvalidLineNumber(Int32)
+  InvalidHitCount(Int32)
+  InvalidLcov(Int32, String)
   InvalidCoveralls(String)
-  InvalidCobertura(Int, String)
+  InvalidCobertura(Int32, String)
   InvalidModel(String)
   InvalidThreshold(String, Double)
-  InvalidDiff(Int, String)
-} derive(Eq, @debug.Debug)
+  InvalidDiff(Int32, String)
+}
 
 // Types and methods
+#derive(Eq, @debug.Debug)
 pub(all) struct ChangedRange {
   path : String
-  start_line : Int
-  end_line : Int
-} derive(Eq, @debug.Debug)
+  start_line : Int32
+  end_line : Int32
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageBranch {
-  line : Int
+  line : Int32
   block : String
   branch : String
-  taken : Int?
-} derive(Eq, @debug.Debug)
+  taken : Int32?
+}
 pub fn CoverageBranch::is_covered(Self) -> Bool
 
+#derive(@debug.Debug)
 pub(all) struct CoverageComparison {
   baseline : CoverageSummary
   current : CoverageSummary
@@ -92,142 +96,162 @@ pub(all) struct CoverageComparison {
   branches : MetricChange
   functions : MetricChange
   files : Array[FileComparison]
-} derive(@debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageCount {
-  covered : Int
-  total : Int
-} derive(Eq, @debug.Debug)
+  covered : Int32
+  total : Int32
+}
 pub fn CoverageCount::percentage(Self) -> Double
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageFunction {
   name : String
-  line : Int?
-  hits : Int
-} derive(Eq, @debug.Debug)
+  line : Int32?
+  hits : Int32
+}
 pub fn CoverageFunction::is_covered(Self) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageLine {
-  line : Int
-  hits : Int
-} derive(Eq, @debug.Debug)
+  line : Int32
+  hits : Int32
+}
 pub fn CoverageLine::is_covered(Self) -> Bool
 
+#derive(Eq, @debug.Debug)
 pub(all) enum CoverageMetric {
   Lines
   Branches
   Functions
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageReport {
   files : Array[FileCoverage]
-} derive(Eq, @debug.Debug)
+}
 pub fn CoverageReport::add_file(Self, FileCoverage) -> Unit
 pub fn CoverageReport::find_file(Self, StringView) -> FileCoverage?
 pub fn CoverageReport::new() -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct CoverageSummary {
   lines : CoverageCount
   branches : CoverageCount
   functions : CoverageCount
-} derive(Eq, @debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct CoverageThresholds {
   lines : Double?
   branches : Double?
   functions : Double?
-} derive(@debug.Debug)
+}
 pub fn CoverageThresholds::new(lines? : Double, branches? : Double, functions? : Double) -> Self
 
+#derive(@debug.Debug)
 pub(all) struct DiffGateResult {
   passed : Bool
   summary : DiffSummary
   actual : Double
   required : Double
-} derive(@debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct DiffSummary {
   lines : CoverageCount
-  changed_ranges : Int
-  matched_files : Int
+  changed_ranges : Int32
+  matched_files : Int32
   unmatched_files : Array[String]
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) enum FileChangeKind {
   Added
   Removed
   Modified
   Unchanged
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct FileComparison {
   path : String
   kind : FileChangeKind
   before : CoverageSummary
   after : CoverageSummary
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct FileCoverage {
   path : String
   test_name : String?
   lines : Array[CoverageLine]
   branches : Array[CoverageBranch]
   functions : Array[CoverageFunction]
-} derive(Eq, @debug.Debug)
-pub fn FileCoverage::add_branch(Self, Int, String, String, Int?) -> Unit raise CoverageError
-pub fn FileCoverage::add_function(Self, String, Int, line? : Int) -> Unit raise CoverageError
-pub fn FileCoverage::add_line(Self, Int, Int) -> Unit raise CoverageError
+}
+pub fn FileCoverage::add_branch(Self, Int32, String, String, Int32?) -> Unit raise CoverageError
+pub fn FileCoverage::add_function(Self, String, Int32, line? : Int32) -> Unit raise CoverageError
+pub fn FileCoverage::add_line(Self, Int32, Int32) -> Unit raise CoverageError
 pub fn FileCoverage::new(String, test_name? : String) -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct FileSummary {
   path : String
   summary : CoverageSummary
-} derive(Eq, @debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct GateResult {
   passed : Bool
   summary : CoverageSummary
   violations : Array[ThresholdViolation]
-} derive(@debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct MetricChange {
   before : CoverageCount
   after : CoverageCount
   percentage_delta : Double
-} derive(@debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct PathFilter {
   includes : Array[String]
   excludes : Array[String]
-} derive(Eq, @debug.Debug)
+}
 pub fn PathFilter::all() -> Self
 pub fn PathFilter::allows(Self, String) -> Bool
 pub fn PathFilter::new(Array[String], Array[String]) -> Self
 
+#derive(@debug.Debug)
 pub(all) struct RegressionLimits {
   lines : Double?
   branches : Double?
   functions : Double?
-} derive(@debug.Debug)
+}
 pub fn RegressionLimits::new(lines? : Double, branches? : Double, functions? : Double) -> Self
 
+#derive(@debug.Debug)
 pub(all) struct RegressionResult {
   passed : Bool
   comparison : CoverageComparison
   violations : Array[RegressionViolation]
-} derive(@debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct RegressionViolation {
   metric : CoverageMetric
   percentage_delta : Double
   allowed_drop : Double
-} derive(@debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct ThresholdViolation {
   metric : CoverageMetric
   actual : Double
   required : Double
-} derive(@debug.Debug)
+}
 
 // Type aliases
 

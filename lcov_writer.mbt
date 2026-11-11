@@ -1,10 +1,10 @@
 ///|
-fn compare_lines(left : CoverageLine, right : CoverageLine) -> Int {
+fn compare_lines(left : CoverageLine, right : CoverageLine) -> Int32 {
   left.line.compare(right.line)
 }
 
 ///|
-fn compare_branches(left : CoverageBranch, right : CoverageBranch) -> Int {
+fn compare_branches(left : CoverageBranch, right : CoverageBranch) -> Int32 {
   let by_line = left.line.compare(right.line)
   if by_line != 0 {
     return by_line
@@ -17,7 +17,7 @@ fn compare_branches(left : CoverageBranch, right : CoverageBranch) -> Int {
 }
 
 ///|
-fn compare_optional_lines(left : Int?, right : Int?) -> Int {
+fn compare_optional_lines(left : Int32?, right : Int32?) -> Int32 {
   match (left, right) {
     (Some(a), Some(b)) => a.compare(b)
     (Some(_), None) => -1
@@ -27,7 +27,10 @@ fn compare_optional_lines(left : Int?, right : Int?) -> Int {
 }
 
 ///|
-fn compare_functions(left : CoverageFunction, right : CoverageFunction) -> Int {
+fn compare_functions(
+  left : CoverageFunction,
+  right : CoverageFunction,
+) -> Int32 {
   let by_line = compare_optional_lines(left.line, right.line)
   if by_line != 0 {
     return by_line

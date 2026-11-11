@@ -1,24 +1,27 @@
 ///|
 /// A covered-item count and its instrumented total.
+#derive(Debug, Eq)
 pub(all) struct CoverageCount {
-  covered : Int
-  total : Int
-} derive(Debug, Eq)
+  covered : Int32
+  total : Int32
+}
 
 ///|
 /// Line, branch, and function totals for a report or source file.
+#derive(Debug, Eq)
 pub(all) struct CoverageSummary {
   lines : CoverageCount
   branches : CoverageCount
   functions : CoverageCount
-} derive(Debug, Eq)
+}
 
 ///|
 /// A summary associated with one source path.
+#derive(Debug, Eq)
 pub(all) struct FileSummary {
   path : String
   summary : CoverageSummary
-} derive(Debug, Eq)
+}
 
 ///|
 /// Return the percentage in the inclusive range 0..100.
@@ -65,12 +68,12 @@ fn summarize_canonical_file(file : FileCoverage) -> CoverageSummary {
     }),
     total: file.functions.length(),
   }
-  { lines, branches, functions }
+  { lines, branches, functions, }
 }
 
 ///|
 fn add_counts(left : CoverageCount, right : CoverageCount) -> CoverageCount {
-  { covered: left.covered + right.covered, total: left.total + right.total }
+  { covered: left.covered + right.covered, total: left.total + right.total, }
 }
 
 ///|
@@ -88,9 +91,9 @@ fn add_summaries(
 ///|
 fn empty_summary() -> CoverageSummary {
   {
-    lines: { covered: 0, total: 0 },
-    branches: { covered: 0, total: 0 },
-    functions: { covered: 0, total: 0 },
+    lines: { covered: 0, total: 0, },
+    branches: { covered: 0, total: 0, },
+    functions: { covered: 0, total: 0, },
   }
 }
 
@@ -99,7 +102,7 @@ fn empty_summary() -> CoverageSummary {
 pub fn summarize_file(
   file : FileCoverage,
 ) -> CoverageSummary raise CoverageError {
-  let report : CoverageReport = { files: [file] }
+  let report : CoverageReport = { files: [file], }
   let canonical = canonicalize_report(report)
   summarize_canonical_file(canonical.files[0])
 }
@@ -123,7 +126,7 @@ pub fn summarize_files(
   let canonical = canonicalize_report(report)
   [
     for file in canonical.files => {
-      { path: file.path, summary: summarize_canonical_file(file) }
+      { path: file.path, summary: summarize_canonical_file(file), }
     }
   ]
 }

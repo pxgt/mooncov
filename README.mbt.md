@@ -14,6 +14,12 @@ The reusable library supports MoonBit's `wasm`, `wasm-gc`, `js`, and `native`
 backends. The optional file-oriented CLI is native-only because it reads local
 files.
 
+The maintenance source was checked on 2026-11-11 with stable
+`moon 0.1.20261104` and `moonc v0.10.20+65efd5b93` on Ubuntu 22.04
+x86_64 (WSL2), using Node.js 22 for JavaScript and GCC for native.
+See [the verification record](docs/verification.md). These source fixes have
+not yet been published to Mooncakes; `0.1.1` remains the earlier release.
+
 ## Why this exists
 
 `moon coverage report` can produce useful Coveralls, Cobertura, HTML, terminal,

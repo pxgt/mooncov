@@ -31,7 +31,7 @@ test "filtering returns independent arrays" {
   let original = filter_fixture()
   let selected = @mooncov.filter_report(original, @mooncov.PathFilter::all())
   selected.files.pop() |> ignore
-  selected.files[0].lines.push({ line: 1, hits: 1 })
+  selected.files[0].lines.push({ line: 1, hits: 1, })
   inspect(original.files.length(), content="4")
   inspect(original.files[0].lines.length(), content="0")
 }

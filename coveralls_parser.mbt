@@ -18,9 +18,9 @@ fn is_json_hex_digit(char : Char) -> Bool {
 ///|
 fn json_value_start_after_key(
   chars : Array[Char],
-  index : Int,
+  index : Int32,
   key : String,
-) -> Int? {
+) -> Int32? {
   let marker = "\"\{key}\""
   if !chars_have_prefix(chars, index, marker) {
     return None
@@ -40,7 +40,7 @@ fn json_value_start_after_key(
 }
 
 ///|
-fn is_json_unicode_escape(chars : Array[Char], index : Int) -> Bool {
+fn is_json_unicode_escape(chars : Array[Char], index : Int32) -> Bool {
   if index + 5 >= chars.length() ||
     chars[index] != '\\' ||
     chars[index + 1] != 'u' {
@@ -69,9 +69,9 @@ fn is_json_simple_escape(char : Char) -> Bool {
 ///|
 fn copy_json_string(
   chars : Array[Char],
-  start : Int,
+  start : Int32,
   output : StringBuilder,
-) -> Int {
+) -> Int32 {
   output.write_char('"')
   let mut index = start + 1
   while index < chars.length() {
@@ -92,9 +92,9 @@ fn copy_json_string(
 ///|
 fn copy_repaired_path_string(
   chars : Array[Char],
-  opening_quote : Int,
+  opening_quote : Int32,
   output : StringBuilder,
-) -> Int {
+) -> Int32 {
   output.write_char('"')
   let mut index = opening_quote + 1
   while index < chars.length() {
@@ -131,9 +131,9 @@ fn copy_repaired_path_string(
 ///|
 fn copy_repaired_source_files_array(
   chars : Array[Char],
-  start : Int,
+  start : Int32,
   output : StringBuilder,
-) -> Int {
+) -> Int32 {
   let mut index = start
   let mut array_depth = 0
   let mut object_depth = 0
@@ -246,7 +246,7 @@ fn coveralls_string(value : Json, path : String) -> String raise CoverageError {
 }
 
 ///|
-fn coveralls_int(value : Json, path : String) -> Int raise CoverageError {
+fn coveralls_int(value : Json, path : String) -> Int32 raise CoverageError {
   match value {
     Number(number, repr=_) =>
       if number.is_nan() || number.is_inf() || number.trunc() != number {
@@ -311,7 +311,7 @@ fn parse_coveralls_coverage(
             "hit count must not be negative",
           )
         }
-        file.lines.push({ line: index + 1, hits })
+        file.lines.push({ line: index + 1, hits, })
       }
     }
   }
@@ -349,14 +349,14 @@ fn parse_coveralls_branches(
         Some(count)
       }
     }
-    file.branches.push({ line, block, branch, taken })
+    file.branches.push({ line, block, branch, taken, })
   }
 }
 
 ///|
 fn parse_coveralls_file(
   value : Json,
-  index : Int,
+  index : Int32,
   strip_prefix : String,
 ) -> FileCoverage raise CoverageError {
   let path = "$.source_files[\{index}]"
@@ -410,7 +410,7 @@ fn parse_coveralls_json(input : String) -> Json raise CoverageError {
 /// repaired only in `source_files[].name` before one strict retry.
 pub fn parse_coveralls(
   input : String,
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> CoverageReport raise CoverageError {
   let root = parse_coveralls_json(input)
   let object = coveralls_object(root, "$")

@@ -1,11 +1,11 @@
 ///|
-fn json_integer(value : Int) -> Json {
+fn json_integer(value : Int32) -> Json {
   Json::number(value.to_double(), repr=value.to_string())
 }
 
 ///|
 fn coveralls_branch_identifier_json(value : String) -> Json {
-  let parsed : Int? = Some(@strconv.from_str(value)) catch { _ => None }
+  let parsed : Int32? = Some(@str.parse_int(value)) catch { _ => None }
   match parsed {
     Some(number) => json_integer(number)
     None => Json::string(value)
@@ -14,7 +14,7 @@ fn coveralls_branch_identifier_json(value : String) -> Json {
 
 ///|
 fn coveralls_line_array(file : FileCoverage) -> Array[Json] raise CoverageError {
-  let counts : Map[Int, Int] = Map([])
+  let counts : Map[Int32, Int32] = Map([])
   let mut max_line = 0
   for item in file.lines {
     if item.line <= 0 {
@@ -86,7 +86,7 @@ fn coveralls_file_json(file : FileCoverage) -> Json raise CoverageError {
 /// accepted by mooncov's decoder.
 pub fn to_coveralls_json(
   report : CoverageReport,
-  service_name? : String = "mooncov",
+  service_name~ : String = "mooncov",
   service_job_id? : String,
 ) -> String raise CoverageError {
   let source_files : Array[Json] = []

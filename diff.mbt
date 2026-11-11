@@ -1,28 +1,31 @@
 ///|
 /// An inclusive new-file line range extracted from a unified diff hunk.
+#derive(Debug, Eq)
 pub(all) struct ChangedRange {
   path : String
-  start_line : Int
-  end_line : Int
-} derive(Debug, Eq)
+  start_line : Int32
+  end_line : Int32
+}
 
 ///|
 /// Instrumented line coverage selected by a collection of changed ranges.
+#derive(Debug, Eq)
 pub(all) struct DiffSummary {
   lines : CoverageCount
-  changed_ranges : Int
-  matched_files : Int
+  changed_ranges : Int32
+  matched_files : Int32
   unmatched_files : Array[String]
-} derive(Debug, Eq)
+}
 
 ///|
 /// The result of a changed-line coverage gate.
+#derive(Debug)
 pub(all) struct DiffGateResult {
   passed : Bool
   summary : DiffSummary
   actual : Double
   required : Double
-} derive(Debug)
+}
 
 ///|
 fn diff_owned(view : StringView) -> String {
@@ -55,8 +58,8 @@ fn clean_diff_path(raw : String, strip_prefix : String) -> String {
 ///|
 fn parse_hunk_range(
   header : String,
-  input_line : Int,
-) -> (Int, Int) raise CoverageError {
+  input_line : Int32,
+) -> (Int32, Int32) raise CoverageError {
   let fields : Array[String] = []
   for field in header.split(" ") {
     if field != "" {
@@ -74,10 +77,10 @@ fn parse_hunk_range(
     Some((start, count)) => (diff_owned(start), diff_owned(count))
     None => (token, "1")
   }
-  let start : Int = @strconv.from_str(start_text) catch {
+  let start : Int32 = @str.parse_int(start_text) catch {
     _ => raise InvalidDiff(input_line, "invalid new-file hunk start")
   }
-  let count : Int = @strconv.from_str(count_text) catch {
+  let count : Int32 = @str.parse_int(count_text) catch {
     _ => raise InvalidDiff(input_line, "invalid new-file hunk count")
   }
   if start < 0 || count < 0 {
@@ -94,7 +97,7 @@ fn parse_hunk_range(
 /// Git's conventional `a/` and `b/` prefixes are removed automatically.
 pub fn parse_unified_diff(
   input : String,
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> Array[ChangedRange] raise CoverageError {
   let ranges : Array[ChangedRange] = []
   let mut current_path : String? = None
@@ -128,7 +131,7 @@ pub fn parse_unified_diff(
         if end_line < start {
           raise InvalidDiff(input_line, "new-file hunk range exceeds Int")
         }
-        ranges.push({ path, start_line: start, end_line })
+        ranges.push({ path, start_line: start, end_line, })
       }
     }
   }
@@ -138,7 +141,7 @@ pub fn parse_unified_diff(
 ///|
 fn line_in_changed_ranges(
   path : String,
-  line : Int,
+  line : Int32,
   ranges : ArrayView[ChangedRange],
 ) -> Bool {
   for range in ranges {
@@ -200,7 +203,7 @@ pub fn summarize_diff(
   let unmatched_files = [ for path, _ in unmatched_set => path ]
   unmatched_files.sort()
   {
-    lines: { covered, total },
+    lines: { covered, total, },
     changed_ranges: ranges.length(),
     matched_files,
     unmatched_files,
@@ -217,5 +220,5 @@ pub fn check_diff_threshold(
   validate_threshold("diff lines", Some(minimum))
   let summary = summarize_diff(report, ranges)
   let actual = summary.lines.percentage()
-  { passed: actual >= minimum, summary, actual, required: minimum }
+  { passed: actual >= minimum, summary, actual, required: minimum, }
 }
