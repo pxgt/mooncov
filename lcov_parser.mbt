@@ -4,8 +4,8 @@ priv struct LcovBuilder {
   mut path : String?
   lines : Array[CoverageLine]
   branches : Array[CoverageBranch]
-  function_lines : Map[String, Int]
-  function_hits : Map[String, Int]
+  function_lines : Map[String, Int32]
+  function_hits : Map[String, Int32]
   function_order : Array[String]
 }
 
@@ -25,10 +25,10 @@ fn LcovBuilder::new() -> LcovBuilder {
 ///|
 fn parse_lcov_int(
   value : StringView,
-  input_line : Int,
+  input_line : Int32,
   field : String,
-) -> Int raise CoverageError {
-  @strconv.from_str(value) catch {
+) -> Int32 raise CoverageError {
+  @str.parse_int(value) catch {
     _ => raise InvalidLcov(input_line, "invalid integer for \{field}: \{value}")
   }
 }
@@ -45,7 +45,7 @@ fn remember_function(builder : LcovBuilder, name : String) -> Unit {
 fn parse_lcov_function_definition(
   builder : LcovBuilder,
   value : StringView,
-  input_line : Int,
+  input_line : Int32,
 ) -> Unit raise CoverageError {
   match value.split_once(",") {
     Some((line_view, name_view)) => {
@@ -68,7 +68,7 @@ fn parse_lcov_function_definition(
 fn parse_lcov_function_hits(
   builder : LcovBuilder,
   value : StringView,
-  input_line : Int,
+  input_line : Int32,
 ) -> Unit raise CoverageError {
   match value.split_once(",") {
     Some((hits_view, name_view)) => {
@@ -91,7 +91,7 @@ fn parse_lcov_function_hits(
 fn parse_lcov_line(
   builder : LcovBuilder,
   value : StringView,
-  input_line : Int,
+  input_line : Int32,
 ) -> Unit raise CoverageError {
   let fields = value.split(",").to_array()
   if fields.length() < 2 {
@@ -105,14 +105,14 @@ fn parse_lcov_line(
   if hits < 0 {
     raise InvalidLcov(input_line, "DA hits must not be negative")
   }
-  builder.lines.push({ line, hits })
+  builder.lines.push({ line, hits, })
 }
 
 ///|
 fn parse_lcov_branch(
   builder : LcovBuilder,
   value : StringView,
-  input_line : Int,
+  input_line : Int32,
 ) -> Unit raise CoverageError {
   let fields = value.split(",").to_array()
   if fields.length() != 4 {
@@ -144,7 +144,7 @@ fn finish_lcov_record(
   builder : LcovBuilder,
   report : CoverageReport,
   strip_prefix : String,
-  input_line : Int,
+  input_line : Int32,
 ) -> Unit raise CoverageError {
   guard builder.path is Some(path) else {
     raise InvalidLcov(input_line, "record is missing SF")
@@ -186,7 +186,7 @@ fn is_lcov_summary_tag(tag : String) -> Bool {
 /// # Example
 /// ```mbt check
 /// test {
-///   let report = parse_lcov(
+///   let report = @mooncov.parse_lcov(
 ///     "TN:unit\nSF:src/lib.mbt\nDA:1,3\nDA:2,0\nend_of_record\n",
 ///   )
 ///   inspect(report.files.length(), content="1")
@@ -195,7 +195,7 @@ fn is_lcov_summary_tag(tag : String) -> Bool {
 /// ```
 pub fn parse_lcov(
   input : String,
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> CoverageReport raise CoverageError {
   let report = CoverageReport::new()
   let mut builder = LcovBuilder::new()

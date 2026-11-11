@@ -3,6 +3,14 @@
 All notable changes to `mooncov` are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+- Adapt numeric parsing to `moonbitlang/core/string`, qualify documentation
+  test imports, and migrate derived trait methods without suppressing warnings.
+- Refresh source formatting and interfaces for stable MoonBit 2026-11-04
+  (`moonc v0.10.20+65efd5b93`).
+- Add weekly compatibility checks and an explicit Node.js 22 test runtime.
+
 ## 0.1.1 - 2026-08-09
 
 ### Fixed

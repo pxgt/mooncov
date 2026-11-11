@@ -1,34 +1,38 @@
 ///|
 /// Coverage dimensions supported by a threshold gate.
+#derive(Debug, Eq)
 pub(all) enum CoverageMetric {
   Lines
   Branches
   Functions
-} derive(Debug, Eq)
+}
 
 ///|
 /// Optional minimum percentages for each coverage dimension.
+#derive(Debug)
 pub(all) struct CoverageThresholds {
   lines : Double?
   branches : Double?
   functions : Double?
-} derive(Debug)
+}
 
 ///|
 /// One failed coverage threshold.
+#derive(Debug)
 pub(all) struct ThresholdViolation {
   metric : CoverageMetric
   actual : Double
   required : Double
-} derive(Debug)
+}
 
 ///|
 /// The complete result of evaluating thresholds.
+#derive(Debug)
 pub(all) struct GateResult {
   passed : Bool
   summary : CoverageSummary
   violations : Array[ThresholdViolation]
-} derive(Debug)
+}
 
 ///|
 /// Construct optional percentage thresholds.
@@ -37,7 +41,7 @@ pub fn CoverageThresholds::new(
   branches? : Double,
   functions? : Double,
 ) -> CoverageThresholds {
-  { lines, branches, functions }
+  { lines, branches, functions, }
 }
 
 ///|
@@ -64,7 +68,7 @@ fn add_violation(
   match required {
     Some(minimum) =>
       if actual < minimum {
-        violations.push({ metric, actual, required: minimum })
+        violations.push({ metric, actual, required: minimum, })
       }
     None => ()
   }
@@ -97,5 +101,5 @@ pub fn check_thresholds(
     summary.functions.percentage(),
     thresholds.functions,
   )
-  { passed: violations.is_empty(), summary, violations }
+  { passed: violations.is_empty(), summary, violations, }
 }

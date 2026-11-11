@@ -13,8 +13,8 @@ fn cobertura_method_rate(function : CoverageFunction) -> String {
 }
 
 ///|
-fn branches_by_line(file : FileCoverage) -> Map[Int, Array[CoverageBranch]] {
-  let grouped : Map[Int, Array[CoverageBranch]] = Map([])
+fn branches_by_line(file : FileCoverage) -> Map[Int32, Array[CoverageBranch]] {
+  let grouped : Map[Int32, Array[CoverageBranch]] = Map([])
   for branch in file.branches {
     grouped.get_or_init(branch.line, () => []).push(branch)
   }
@@ -22,8 +22,8 @@ fn branches_by_line(file : FileCoverage) -> Map[Int, Array[CoverageBranch]] {
 }
 
 ///|
-fn line_hits_map(file : FileCoverage) -> Map[Int, Int] {
-  let hits : Map[Int, Int] = Map([])
+fn line_hits_map(file : FileCoverage) -> Map[Int32, Int32] {
+  let hits : Map[Int32, Int32] = Map([])
   for line in file.lines {
     hits[line.line] = line.hits
   }
@@ -65,8 +65,8 @@ fn write_cobertura_methods(output : StringBuilder, file : FileCoverage) -> Unit 
 ///|
 fn write_cobertura_line(
   output : StringBuilder,
-  line : Int,
-  hits : Int,
+  line : Int32,
+  hits : Int32,
   branches : Array[CoverageBranch]?,
 ) -> Unit {
   match branches {
@@ -134,7 +134,7 @@ fn write_cobertura_class(output : StringBuilder, file : FileCoverage) -> Unit {
 /// line and branch summary counts survive a mooncov encode/decode round trip.
 pub fn to_cobertura(
   report : CoverageReport,
-  source_root? : String = ".",
+  source_root~ : String = ".",
 ) -> String raise CoverageError {
   let canonical = canonicalize_report(report)
   let summary = canonical.files.fold(init=empty_summary(), (acc, file) => {

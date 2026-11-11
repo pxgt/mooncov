@@ -1,8 +1,8 @@
 ///|
 priv struct CoberturaMethod {
   name : String
-  mut line : Int?
-  mut hits : Int
+  mut line : Int32?
+  mut hits : Int32
 }
 
 ///|
@@ -23,10 +23,10 @@ fn cobertura_required_attribute(
 ///|
 fn cobertura_int_text(
   text : String,
-  input_line : Int,
+  input_line : Int32,
   field : String,
-) -> Int raise CoverageError {
-  @strconv.from_str(text) catch {
+) -> Int32 raise CoverageError {
+  @str.parse_int(text) catch {
     _ => raise InvalidCobertura(input_line, "\{field} must be a MoonBit Int")
   }
 }
@@ -35,7 +35,7 @@ fn cobertura_int_text(
 fn cobertura_integer_attribute(
   tag : XmlTag,
   name : String,
-) -> Int raise CoverageError {
+) -> Int32 raise CoverageError {
   cobertura_int_text(
     cobertura_required_attribute(tag, name),
     tag.input_line,
@@ -46,8 +46,8 @@ fn cobertura_integer_attribute(
 ///|
 fn parse_condition_coverage(
   value : String,
-  input_line : Int,
-) -> (Int, Int) raise CoverageError {
+  input_line : Int32,
+) -> (Int32, Int32) raise CoverageError {
   guard value.split_once("(") is Some((_, after_open)) else {
     raise InvalidCobertura(
       input_line, "condition-coverage must contain (covered/total)",
@@ -83,7 +83,7 @@ fn parse_condition_coverage(
 fn add_cobertura_branches(
   file : FileCoverage,
   tag : XmlTag,
-  line : Int,
+  line : Int32,
 ) -> Unit raise CoverageError {
   match tag.attributes.get("branch") {
     Some("true") =>
@@ -117,8 +117,8 @@ fn add_cobertura_branches(
 ///|
 fn update_cobertura_method(
   method_entry : CoberturaMethod,
-  line : Int,
-  hits : Int,
+  line : Int32,
+  hits : Int32,
 ) -> Unit {
   match method_entry.line {
     Some(previous) => if line < previous { method_entry.line = Some(line) }
@@ -151,7 +151,7 @@ fn finish_cobertura_method(
 /// entries using the first method line and maximum line hit count.
 pub fn parse_cobertura(
   input : String,
-  strip_prefix? : String = "",
+  strip_prefix~ : String = "",
 ) -> CoverageReport raise CoverageError {
   let report = CoverageReport::new()
   let mut current_file : FileCoverage? = None
@@ -243,7 +243,7 @@ pub fn parse_cobertura(
           Some(method_entry) =>
             update_cobertura_method(method_entry, line, hits)
           None => {
-            file.lines.push({ line, hits })
+            file.lines.push({ line, hits, })
             add_cobertura_branches(file, tag, line)
           }
         }

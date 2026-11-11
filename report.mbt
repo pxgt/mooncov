@@ -38,8 +38,8 @@ fn write_summary_row(
 /// Render report-wide and optional per-file statistics as a Markdown table.
 pub fn to_markdown(
   report : CoverageReport,
-  title? : String = "Coverage report",
-  include_files? : Bool = true,
+  title~ : String = "Coverage report",
+  include_files~ : Bool = true,
 ) -> String raise CoverageError {
   let output = StringBuilder()
   output.write_string("## \{markdown_cell(title)}\n\n")
@@ -135,7 +135,7 @@ fn unified_file_json(file : FileCoverage) -> Json {
 /// coverage and test names.
 pub fn to_json_report(
   report : CoverageReport,
-  indent? : Int = 2,
+  indent~ : Int32 = 2,
 ) -> String raise CoverageError {
   if indent < 0 {
     raise InvalidModel("JSON indentation must not be negative")

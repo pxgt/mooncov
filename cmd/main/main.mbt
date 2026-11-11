@@ -51,7 +51,7 @@ fn print_demo() -> Unit raise {
 
 ///|
 fn parse_percentage(value : String, label : String) -> Double raise {
-  let percentage : Double = @strconv.from_str(value) catch {
+  let percentage : Double = @str.parse_double(value) catch {
     _ => raise @mooncov.InvalidModel("\{label} must be a number")
   }
   percentage

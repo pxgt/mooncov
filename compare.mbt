@@ -1,31 +1,35 @@
 ///|
 /// Coverage before and after a change, plus the percentage-point delta.
+#derive(Debug)
 pub(all) struct MetricChange {
   before : CoverageCount
   after : CoverageCount
   percentage_delta : Double
-} derive(Debug)
+}
 
 ///|
 /// How a source path changed between two reports.
+#derive(Debug, Eq)
 pub(all) enum FileChangeKind {
   Added
   Removed
   Modified
   Unchanged
-} derive(Debug, Eq)
+}
 
 ///|
 /// A per-file summary comparison.
+#derive(Debug, Eq)
 pub(all) struct FileComparison {
   path : String
   kind : FileChangeKind
   before : CoverageSummary
   after : CoverageSummary
-} derive(Debug, Eq)
+}
 
 ///|
 /// Report-wide metric changes and path-level comparisons.
+#derive(Debug)
 pub(all) struct CoverageComparison {
   baseline : CoverageSummary
   current : CoverageSummary
@@ -33,31 +37,34 @@ pub(all) struct CoverageComparison {
   branches : MetricChange
   functions : MetricChange
   files : Array[FileComparison]
-} derive(Debug)
+}
 
 ///|
 /// Allowed percentage-point drops for regression checks.
+#derive(Debug)
 pub(all) struct RegressionLimits {
   lines : Double?
   branches : Double?
   functions : Double?
-} derive(Debug)
+}
 
 ///|
 /// One metric whose drop exceeded its allowance.
+#derive(Debug)
 pub(all) struct RegressionViolation {
   metric : CoverageMetric
   percentage_delta : Double
   allowed_drop : Double
-} derive(Debug)
+}
 
 ///|
 /// Result of comparing current coverage to a baseline policy.
+#derive(Debug)
 pub(all) struct RegressionResult {
   passed : Bool
   comparison : CoverageComparison
   violations : Array[RegressionViolation]
-} derive(Debug)
+}
 
 ///|
 /// Construct optional maximum percentage-point drops.
@@ -66,12 +73,12 @@ pub fn RegressionLimits::new(
   branches? : Double,
   functions? : Double,
 ) -> RegressionLimits {
-  { lines, branches, functions }
+  { lines, branches, functions, }
 }
 
 ///|
 fn metric_change(before : CoverageCount, after : CoverageCount) -> MetricChange {
-  { before, after, percentage_delta: after.percentage() - before.percentage() }
+  { before, after, percentage_delta: after.percentage() - before.percentage(), }
 }
 
 ///|
@@ -193,7 +200,7 @@ pub fn check_regressions(
     comparison.functions,
     limits.functions,
   )
-  { passed: violations.is_empty(), comparison, violations }
+  { passed: violations.is_empty(), comparison, violations, }
 }
 
 ///|
@@ -243,8 +250,8 @@ fn write_comparison_row(
 /// Render an overall and optional per-file baseline comparison as Markdown.
 pub fn comparison_to_markdown(
   comparison : CoverageComparison,
-  title? : String = "Coverage comparison",
-  include_files? : Bool = true,
+  title~ : String = "Coverage comparison",
+  include_files~ : Bool = true,
 ) -> String {
   let output = StringBuilder()
   output.write_string("## \{markdown_cell(title)}\n\n")

@@ -1,7 +1,7 @@
 ///|
 fn comparison_report(
   path : String,
-  hits : Array[Int],
+  hits : Array[Int32],
 ) -> @mooncov.CoverageReport raise @mooncov.CoverageError {
   let file = @mooncov.FileCoverage::new(path)
   for index, count in hits {

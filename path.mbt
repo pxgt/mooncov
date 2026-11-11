@@ -64,7 +64,7 @@ fn remove_normalized_prefix(path : String, prefix : String) -> String {
 /// ```mbt check
 /// test {
 ///   inspect(
-///     normalize_path(
+///     @mooncov.normalize_path(
 ///       "D:\\work\\pkg\\.\\src\\..\\src\\lib.mbt",
 ///       strip_prefix="D:/work/pkg",
 ///     ),
@@ -72,7 +72,7 @@ fn remove_normalized_prefix(path : String, prefix : String) -> String {
 ///   )
 /// }
 /// ```
-pub fn normalize_path(path : String, strip_prefix? : String = "") -> String {
+pub fn normalize_path(path : String, strip_prefix~ : String = "") -> String {
   let normalized = collapse_path(path)
   remove_normalized_prefix(normalized, collapse_path(strip_prefix))
 }
@@ -80,9 +80,9 @@ pub fn normalize_path(path : String, strip_prefix? : String = "") -> String {
 ///|
 fn glob_chars(
   pattern : Array[Char],
-  pattern_index : Int,
+  pattern_index : Int32,
   value : Array[Char],
-  value_index : Int,
+  value_index : Int32,
 ) -> Bool {
   if pattern_index == pattern.length() {
     return value_index == value.length()

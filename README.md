@@ -67,6 +67,13 @@ CLI 还支持格式规范化、报告合并、基线比较和回归门禁。完�
 
 ## 验证
 
+当前维护源码于 2026-11-11 使用官方 stable 工具链验证：
+`moon 0.1.20261104`、`moonc v0.10.20+65efd5b93`。
+验证平台为 Ubuntu 22.04 x86_64（WSL2），JavaScript 测试使用 Node.js 22；
+native 构建需要 C 编译器。完整版本与结果见
+[维护记录](docs/verification.md)。已发布的 `0.1.1` 是此前版本，
+本次源码兼容性修复尚未发布到 Mooncakes。
+
 ```text
 moon fmt --check
 moon info --target all
@@ -78,7 +85,8 @@ moon package --frozen
 git diff --exit-code
 ```
 
-GitHub Actions 会执行格式、接口、检查、构建、测试、示例和打包验证。
+GitHub Actions 会在 push、PR、手动运行及每周一执行格式、接口、检查、构建、
+测试、示例和打包验证，并记录当次实际工具链版本。
 
 ## 文档关系
 

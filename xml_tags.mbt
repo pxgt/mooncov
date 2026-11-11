@@ -4,14 +4,14 @@ priv struct XmlTag {
   closing : Bool
   self_closing : Bool
   attributes : Map[String, String]
-  input_line : Int
+  input_line : Int32
 }
 
 ///|
 priv struct XmlScanner {
   chars : Array[Char]
-  mut index : Int
-  mut line : Int
+  mut index : Int32
+  mut line : Int32
 }
 
 ///|
@@ -20,7 +20,7 @@ fn is_xml_space(char : Char) -> Bool {
 }
 
 ///|
-fn chars_to_string(chars : Array[Char], start : Int, end : Int) -> String {
+fn chars_to_string(chars : Array[Char], start : Int32, end : Int32) -> String {
   let output = StringBuilder()
   for index in start..<end {
     output.write_char(chars[index])
@@ -31,7 +31,7 @@ fn chars_to_string(chars : Array[Char], start : Int, end : Int) -> String {
 ///|
 fn chars_have_prefix(
   chars : Array[Char],
-  index : Int,
+  index : Int32,
   expected : String,
 ) -> Bool {
   let pattern = expected.to_array()
@@ -47,7 +47,7 @@ fn chars_have_prefix(
 }
 
 ///|
-fn XmlScanner::advance(self : XmlScanner, count : Int) -> Unit {
+fn XmlScanner::advance(self : XmlScanner, count : Int32) -> Unit {
   for _ in 0..<count {
     if self.index < self.chars.length() {
       if self.chars[self.index] == '\n' {
@@ -62,7 +62,7 @@ fn XmlScanner::advance(self : XmlScanner, count : Int) -> Unit {
 fn XmlScanner::skip_until(
   self : XmlScanner,
   marker : String,
-  start_line : Int,
+  start_line : Int32,
 ) -> Unit raise CoverageError {
   while self.index < self.chars.length() &&
         !chars_have_prefix(self.chars, self.index, marker) {
@@ -78,11 +78,11 @@ fn XmlScanner::skip_until(
 }
 
 ///|
-fn entity_digit(char : Char, radix : Int) -> Int? {
+fn entity_digit(char : Char, radix : Int32) -> Int32? {
   let value = match char {
-    '0'..='9' => char.to_int() - '0'.to_int()
-    'a'..='f' => char.to_int() - 'a'.to_int() + 10
-    'A'..='F' => char.to_int() - 'A'.to_int() + 10
+    '0'..<='9' => char.to_int() - '0'.to_int()
+    'a'..<='f' => char.to_int() - 'a'.to_int() + 10
+    'A'..<='F' => char.to_int() - 'A'.to_int() + 10
     _ => return None
   }
   if value < radix {
@@ -118,7 +118,7 @@ fn parse_numeric_entity(token : String) -> Char? {
 ///|
 fn decode_xml_entities(
   input : String,
-  input_line : Int,
+  input_line : Int32,
 ) -> String raise CoverageError {
   let chars = input.to_array()
   let output = StringBuilder()
@@ -158,7 +158,7 @@ fn decode_xml_entities(
 ///|
 fn parse_xml_tag(
   content : String,
-  input_line : Int,
+  input_line : Int32,
 ) -> XmlTag raise CoverageError {
   let chars = content.to_array()
   let mut index = 0
@@ -253,12 +253,12 @@ fn parse_xml_tag(
     attributes[attribute_name] = decode_xml_entities(raw_value, input_line)
     index = index + 1
   }
-  { name, closing, self_closing, attributes, input_line }
+  { name, closing, self_closing, attributes, input_line, }
 }
 
 ///|
 fn scan_xml_tags(input : String) -> Array[XmlTag] raise CoverageError {
-  let scanner : XmlScanner = { chars: input.to_array(), index: 0, line: 1 }
+  let scanner : XmlScanner = { chars: input.to_array(), index: 0, line: 1, }
   let tags : Array[XmlTag] = []
   while scanner.index < scanner.chars.length() {
     if scanner.chars[scanner.index] != '<' {

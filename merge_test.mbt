@@ -1,9 +1,9 @@
 ///|
 fn make_merge_report(
   path : String,
-  line_hits : Int,
-  branch_hits : Int?,
-  function_hits : Int,
+  line_hits : Int32,
+  branch_hits : Int32?,
+  function_hits : Int32,
   test_name? : String,
 ) -> @mooncov.CoverageReport raise @mooncov.CoverageError {
   let file = match test_name {
@@ -96,7 +96,7 @@ test "merge rejects negative counts from manually constructed models" {
       {
         path: "src/bad.mbt",
         test_name: None,
-        lines: [{ line: 1, hits: -1 }],
+        lines: [{ line: 1, hits: -1, }],
         branches: [],
         functions: [],
       },

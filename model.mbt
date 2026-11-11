@@ -1,60 +1,66 @@
 ///|
 /// Errors raised while decoding or validating coverage data.
+#derive(Debug, Eq)
 pub(all) suberror CoverageError {
-  InvalidLineNumber(Int)
-  InvalidHitCount(Int)
-  InvalidLcov(Int, String)
+  InvalidLineNumber(Int32)
+  InvalidHitCount(Int32)
+  InvalidLcov(Int32, String)
   InvalidCoveralls(String)
-  InvalidCobertura(Int, String)
+  InvalidCobertura(Int32, String)
   InvalidModel(String)
   InvalidThreshold(String, Double)
-  InvalidDiff(Int, String)
-} derive(Debug, Eq)
+  InvalidDiff(Int32, String)
+}
 
 ///|
 /// A covered or uncovered source line.
+#derive(Debug, Eq)
 pub(all) struct CoverageLine {
-  line : Int
-  hits : Int
-} derive(Debug, Eq)
+  line : Int32
+  hits : Int32
+}
 
 ///|
 /// A branch arm reported by a coverage producer.
 ///
 /// `taken = None` represents LCOV's `-` value, meaning that the producer
 /// instrumented the branch but did not report a numeric execution count.
+#derive(Debug, Eq)
 pub(all) struct CoverageBranch {
-  line : Int
+  line : Int32
   block : String
   branch : String
-  taken : Int?
-} derive(Debug, Eq)
+  taken : Int32?
+}
 
 ///|
 /// A function entry from a coverage report.
 ///
 /// Some formats do not carry a declaration line, so `line` is optional.
+#derive(Debug, Eq)
 pub(all) struct CoverageFunction {
   name : String
-  line : Int?
-  hits : Int
-} derive(Debug, Eq)
+  line : Int32?
+  hits : Int32
+}
 
 ///|
 /// Coverage data for one normalized source path.
+#derive(Debug, Eq)
 pub(all) struct FileCoverage {
   path : String
   test_name : String?
   lines : Array[CoverageLine]
   branches : Array[CoverageBranch]
   functions : Array[CoverageFunction]
-} derive(Debug, Eq)
+}
 
 ///|
 /// A format-neutral coverage report.
+#derive(Debug, Eq)
 pub(all) struct CoverageReport {
   files : Array[FileCoverage]
-} derive(Debug, Eq)
+}
 
 ///|
 /// Create an empty file report.
@@ -62,27 +68,27 @@ pub(all) struct CoverageReport {
 /// # Example
 /// ```mbt check
 /// test {
-///   let file = FileCoverage::new("src/lib.mbt")
+///   let file = @mooncov.FileCoverage::new("src/lib.mbt")
 ///   inspect(file.path, content="src/lib.mbt")
 ///   inspect(file.lines.length(), content="0")
 /// }
 /// ```
 pub fn FileCoverage::new(path : String, test_name? : String) -> FileCoverage {
-  { path, test_name, lines: [], branches: [], functions: [] }
+  { path, test_name, lines: [], branches: [], functions: [], }
 }
 
 ///|
 /// Create an empty coverage report.
 pub fn CoverageReport::new() -> CoverageReport {
-  { files: [] }
+  { files: [], }
 }
 
 ///|
 /// Add line coverage after validating the line number and hit count.
 pub fn FileCoverage::add_line(
   self : FileCoverage,
-  line : Int,
-  hits : Int,
+  line : Int32,
+  hits : Int32,
 ) -> Unit raise CoverageError {
   if line <= 0 {
     raise InvalidLineNumber(line)
@@ -90,17 +96,17 @@ pub fn FileCoverage::add_line(
   if hits < 0 {
     raise InvalidHitCount(hits)
   }
-  self.lines.push({ line, hits })
+  self.lines.push({ line, hits, })
 }
 
 ///|
 /// Add branch coverage after validating its source line and optional count.
 pub fn FileCoverage::add_branch(
   self : FileCoverage,
-  line : Int,
+  line : Int32,
   block : String,
   branch : String,
-  taken : Int?,
+  taken : Int32?,
 ) -> Unit raise CoverageError {
   if line <= 0 {
     raise InvalidLineNumber(line)
@@ -108,7 +114,7 @@ pub fn FileCoverage::add_branch(
   if taken is Some(count) && count < 0 {
     raise InvalidHitCount(count)
   }
-  self.branches.push({ line, block, branch, taken })
+  self.branches.push({ line, block, branch, taken, })
 }
 
 ///|
@@ -117,8 +123,8 @@ pub fn FileCoverage::add_branch(
 pub fn FileCoverage::add_function(
   self : FileCoverage,
   name : String,
-  hits : Int,
-  line? : Int,
+  hits : Int32,
+  line? : Int32,
 ) -> Unit raise CoverageError {
   if line is Some(value) && value <= 0 {
     raise InvalidLineNumber(value)
@@ -126,7 +132,7 @@ pub fn FileCoverage::add_function(
   if hits < 0 {
     raise InvalidHitCount(hits)
   }
-  self.functions.push({ name, line, hits })
+  self.functions.push({ name, line, hits, })
 }
 
 ///|

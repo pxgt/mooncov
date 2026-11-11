@@ -3,10 +3,11 @@
 ///
 /// An empty include list accepts every path. Excludes are evaluated after
 /// includes and always win.
+#derive(Debug, Eq)
 pub(all) struct PathFilter {
   includes : Array[String]
   excludes : Array[String]
-} derive(Debug, Eq)
+}
 
 ///|
 /// Construct a reusable path filter.
@@ -14,13 +15,13 @@ pub fn PathFilter::new(
   includes : Array[String],
   excludes : Array[String],
 ) -> PathFilter {
-  { includes, excludes }
+  { includes, excludes, }
 }
 
 ///|
 /// Construct a filter that accepts every path.
 pub fn PathFilter::all() -> PathFilter {
-  { includes: [], excludes: [] }
+  { includes: [], excludes: [], }
 }
 
 ///|

@@ -45,9 +45,9 @@ test "changed-line summary counts overlapping ranges once" {
   let report = @mooncov.CoverageReport::new()
   report.add_file(file)
   let ranges : Array[@mooncov.ChangedRange] = [
-    { path: "src/a.mbt", start_line: 2, end_line: 4 },
-    { path: "src/a.mbt", start_line: 3, end_line: 8 },
-    { path: "src/missing.mbt", start_line: 1, end_line: 2 },
+    { path: "src/a.mbt", start_line: 2, end_line: 4, },
+    { path: "src/a.mbt", start_line: 3, end_line: 8, },
+    { path: "src/missing.mbt", start_line: 1, end_line: 2, },
   ]
   let summary = @mooncov.summarize_diff(report, ranges)
   inspect(summary.lines.covered, content="2")
@@ -65,7 +65,7 @@ test "diff threshold uses the same inclusive boundary semantics" {
   let report = @mooncov.CoverageReport::new()
   report.add_file(file)
   let ranges : Array[@mooncov.ChangedRange] = [
-    { path: "src/a.mbt", start_line: 1, end_line: 2 },
+    { path: "src/a.mbt", start_line: 1, end_line: 2, },
   ]
   assert_true(@mooncov.check_diff_threshold(report, ranges, 50.0).passed)
   assert_false(@mooncov.check_diff_threshold(report, ranges, 50.1).passed)
